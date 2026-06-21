@@ -2499,6 +2499,65 @@ function init() {
   if (rateInput) rateInput.value = state.settings.voiceRate || 0.95;
   loadVoices();
 }
+  // ============================================================
+// AI SCHEDULE & GOALS ALARM SYSTEM (IMEPANGILIWA)
+// ============================================================
+
+// Hifadhi kumbukumbu ya ukumbusho ili isijirudie kila sekunde
+let lastAlertedTask = null;
+
+function checkScheduleForAlarms() {
+    const now = new Date();
+    const today = todayKey();
+    const currentHour = now.getHours().toString().padStart(2, '0');
+    const currentMinute = now.getMinutes().toString().padStart(2, '0');
+    const currentTimeString = `${currentHour}:${currentMinute}`;
+
+    if (state.schedule && Array.isArray(state.schedule)) {
+        state.schedule.forEach(item => {
+            // Tunachuja: Leo, haijakamilika, na ina muda
+            if (item.dateKey === today && !item.done && item.time) {
+                
+                // Tunabadilisha muda wa kazi kuwa dakika
+                const [h, m] = item.time.split(':').map(Number);
+                const taskTimeInMinutes = h * 60 + m;
+                const currentTimeInMinutes = now.getHours() * 60 + now.getMinutes();
+                const diff = taskTimeInMinutes - currentTimeInMinutes;
+
+                // 1. UKUMBUSHO WA DAKIKA 5 KABLA
+                if (diff === 5) {
+                    const alertId = `alarm_5_${item.id || item.task}`;
+                    if (localStorage.getItem(alertId) !== today) {
+                        const msg = currentLang === 'sw' 
+                            ? `Ukumbusho: unalo jukumu la ${item.task} baada ya dakika 5.` 
+                            : `Reminder: you have ${item.task} in 5 minutes.`;
+                        speak(msg);
+                        localStorage.setItem(alertId, today);
+                    }
+                }
+
+                // 2. UKUMBUSHO WA MUDA WA KAZI KUFIA
+                if (diff === 0) {
+                    const alertId = `alarm_now_${item.id || item.task}`;
+                    if (localStorage.getItem(alertId) !== today) {
+                        const msg = currentLang === 'sw' 
+                            ? `Tahadhari: Muda wa ${item.task} umefika sasa!` 
+                            : `Alert: It is time for ${item.task} now!`;
+                        speak(msg);
+                        localStorage.setItem(alertId, today);
+                    }
+                }
+            }
+        });
+    }
+}
+
+// Tunaanzisha kipimo cha muda (Kila sekunde 30 ili kuhakikisha usahihi)
+setInterval(checkScheduleForAlarms, 30000);
+
+// ============================================================
+// MWISHO WA AI ALARM SYSTEM
+// ============================================================
 document.addEventListener('DOMContentLoaded', init);
 if (document.readyState !== 'loading') init();
 
