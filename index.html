@@ -24,7 +24,9 @@
   }
   *{box-sizing:border-box; margin:0; padding:0;}
   body{
-    background: radial-gradient(ellipse 1200px 600px at 50% -10%, rgba(212,162,78,0.08), transparent), var(--bg);
+    background:
+      radial-gradient(ellipse 1200px 600px at 50% -10%, rgba(212,162,78,0.08), transparent),
+      var(--bg);
     color:var(--text);
     font-family:'Inter', sans-serif;
     min-height:100vh;
@@ -316,19 +318,7 @@
   .goal-name{ font-weight:600; font-size:14px; }
   .goal-meta{ font-size:11px; color:var(--text-faint); }
 
-  .notif-badge {
-    background:var(--red);
-    color:#fff;
-    border-radius:50%;
-    padding:2px 6px;
-    font-size:10px;
-    font-weight:700;
-    margin-left:4px;
-    animation:pulse-badge 1.5s infinite;
-  }
-  @keyframes pulse-badge{ 0%,100%{ opacity:1; } 50%{ opacity:0.4; } }
-
-  /* Suggestion box */
+  /* suggestion box */
   .suggestion-box {
     background:var(--panel-2);
     border:1px solid var(--gold);
@@ -361,8 +351,20 @@
   .data-item .value.red { color:var(--red); }
 
   .chart-bars { display:flex; gap:6px; align-items:flex-end; height:100px; padding-top:10px; }
-  .chart-bar { flex:1; background:var(--gold); border-radius:4px 4px 0 0; min-height:4px; transition:height 0.5s; position:relative; }
+  .chart-bar { flex:1; border-radius:4px 4px 0 0; min-height:4px; transition:height 0.5s; position:relative; }
   .chart-bar .bar-label { position:absolute; bottom:-18px; left:50%; transform:translateX(-50%); font-size:9px; color:var(--text-faint); white-space:nowrap; }
+
+  .notif-badge {
+    background:var(--red);
+    color:#fff;
+    border-radius:50%;
+    padding:2px 6px;
+    font-size:10px;
+    font-weight:700;
+    margin-left:4px;
+    animation:pulse-badge 1.5s infinite;
+  }
+  @keyframes pulse-badge{ 0%,100%{ opacity:1; } 50%{ opacity:0.4; } }
 </style>
 </head>
 <body>
@@ -1932,68 +1934,71 @@ function deleteGoal(id) {
   renderGoals();
 }
 
-// ============ REMINDER ENGINE ============
-const REMINDER_INTERVAL = 10000;
-const FIVE_MINUTES = 5 * 60 * 1000;
-
-function reminderEngine() {
-  const now = Date.now();
+// ============ ALARM / REMINDER ENGINE ============
+function checkAlarms() {
+  const now = new Date();
   const today = todayKey();
-  const todayItems = state.schedule.filter(s => s.dateKey === today && !s.done);
+  const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+  // Check schedule items for today
+  if (state.schedule && Array.isArray(state.schedule)) {
+    state.schedule.forEach(item => {
+      if (item.dateKey === today && !item.done && item.time) {
+        const [h, m] = item.time.split(':').map(Number);
+        const taskMinutes = h * 60 + m;
+        const currentMinutes = now.getHours() * 60 + now.getMinutes();
+        const diff = taskMinutes - currentMinutes;
+
+        // 5 minutes before
+        if (diff === 5) {
+          const key = `alarm_5_${item.id}`;
+          if (localStorage.getItem(key) !== today) {
+            const msg = t('reminder.scheduleUpcoming', item.task, item.time);
+            speak(msg);
+            logActivity('warn', msg);
+            localStorage.setItem(key, today);
+            updateNotificationBadge();
+          }
+        }
+
+        // Time has come
+        if (diff <= 0 && diff > -1) {
+          const key = `alarm_now_${item.id}`;
+          if (localStorage.getItem(key) !== today) {
+            const msg = t('reminder.scheduleOverdue', item.task, item.time);
+            speak(msg);
+            logActivity('warn', msg);
+            localStorage.setItem(key, today);
+            updateNotificationBadge();
+          }
+        }
+
+        // Overdue - remind every 10 minutes
+        if (diff < -1 && diff % 10 === 0) {
+          const key = `alarm_overdue_${item.id}`;
+          const last = localStorage.getItem(key);
+          if (!last || now - parseInt(last) > 10 * 60 * 1000) {
+            const msg = t('reminder.scheduleOverdue', item.task, item.time);
+            speak(msg);
+            logActivity('warn', msg);
+            localStorage.setItem(key, String(now));
+            updateNotificationBadge();
+          }
+        }
+      }
+    });
+  }
 
   // Savings reminder - every 10 minutes if no savings today
   if (getTodaySavings() === 0) {
-    const lastRemind = localStorage.getItem('remind_savings_' + today);
-    if (!lastRemind || now - parseInt(lastRemind) > 10 * 60 * 1000) {
+    const key = `remind_savings_${today}`;
+    const last = localStorage.getItem(key);
+    if (!last || now - parseInt(last) > 10 * 60 * 1000) {
       speak(t('voice.savingsReminder'));
       logActivity('warn', t('voice.savingsReminder'));
-      localStorage.setItem('remind_savings_' + today, String(now));
-      showNotificationBadge();
+      localStorage.setItem(key, String(now));
+      updateNotificationBadge();
     }
-  }
-
-  for (const item of todayItems) {
-    if (!item.time) continue;
-    const [h, m] = item.time.split(':').map(Number);
-    const target = new Date();
-    target.setHours(h, m, 0, 0);
-    const diff = target.getTime() - now;
-
-    if (diff > 0 && diff <= FIVE_MINUTES) {
-      const lastRemindKey = `remind_${item.id}_upcoming`;
-      const lastRemind = localStorage.getItem(lastRemindKey);
-      if (!lastRemind || now - parseInt(lastRemind) > REMINDER_INTERVAL * 2) {
-        const msg = t('reminder.scheduleUpcoming', item.task, item.time);
-        speak(msg);
-        logActivity('warn', msg);
-        localStorage.setItem(lastRemindKey, String(now));
-        showNotificationBadge();
-      }
-    }
-
-    if (diff < 0) {
-      const lastRemindKey = `remind_${item.id}_overdue`;
-      const lastRemind = localStorage.getItem(lastRemindKey);
-      if (!lastRemind || now - parseInt(lastRemind) > REMINDER_INTERVAL * 2) {
-        const msg = t('reminder.scheduleOverdue', item.task, item.time);
-        speak(msg);
-        logActivity('warn', msg);
-        localStorage.setItem(lastRemindKey, String(now));
-        showNotificationBadge();
-      }
-    }
-  }
-
-  const noTimeItems = todayItems.filter(item => !item.time);
-  const noTimeKey = 'remind_no_time_' + today;
-  const lastNoTimeRemind = localStorage.getItem(noTimeKey);
-  if (noTimeItems.length > 0 && (!lastNoTimeRemind || now - parseInt(lastNoTimeRemind) > 30 * 60 * 1000)) {
-    const randomItem = noTimeItems[Math.floor(Math.random() * noTimeItems.length)];
-    const msg = t('sched.reminderCheck', randomItem.task);
-    speak(msg);
-    logActivity('warn', msg);
-    localStorage.setItem(noTimeKey, String(now));
-    showNotificationBadge();
   }
 
   // Goal nudges
@@ -2013,10 +2018,6 @@ function reminderEngine() {
 
   updateNotificationBadge();
   updateSuggestions();
-}
-
-function showNotificationBadge() {
-  document.getElementById('navNotifBadge').style.display = 'inline-block';
 }
 
 function updateNotificationBadge() {
@@ -2051,17 +2052,14 @@ function triggerAllData() {
   speak(currentLang === 'sw' ? 'Hapa kuna muhtasari kamili wa biashara yako.' : 'Here is the full summary of your business.');
 }
 
-// ============ VOICE PROCESSING ============
 function processVoiceCommand(text) {
   const lower = text.toLowerCase();
 
-  // Check for voice flow first
   if (voiceFlowActive) {
     handleVoiceFlow(text);
     return;
   }
 
-  // Keywords: sales, expense, savings, all data, report
   if (/\b(seli|mauzo|sales|sell|sale)\b/.test(lower)) {
     triggerVoiceSale();
     return;
@@ -2088,7 +2086,6 @@ function processVoiceCommand(text) {
     return;
   }
 
-  // Stock query
   for (const key of Object.keys(state.stocks)) {
     if (lower.includes(key)) {
       const s = state.stocks[key];
@@ -2102,7 +2099,6 @@ function processVoiceCommand(text) {
 
 function handleVoiceFlow(text) {
   const step = voiceFlowStep;
-  const lower = text.toLowerCase();
 
   if (step === 'sale_customer') {
     voiceFlowData.customer = text.trim();
@@ -2177,7 +2173,6 @@ function handleVoiceFlow(text) {
   speak(t('voice.didNotUnderstand'));
 }
 
-// ============ UTILITY FUNCTIONS ============
 function findClosestStockItem(name) {
   if (!name) return null;
   name = name.trim().toLowerCase();
@@ -2196,10 +2191,7 @@ function findClosestStockItem(name) {
 function extractNumber(text) {
   const digitMatch = text.match(/\d+/);
   if (digitMatch) return parseInt(digitMatch[0]);
-  const SW_NUMBERS = {
-    'moja': 1, 'mbili': 2, 'tatu': 3, 'nne': 4, 'tano': 5,
-    'sita': 6, 'saba': 7, 'nane': 8, 'tisa': 9, 'kumi': 10
-  };
+  const SW_NUMBERS = { 'moja': 1, 'mbili': 2, 'tatu': 3, 'nne': 4, 'tano': 5, 'sita': 6, 'saba': 7, 'nane': 8, 'tisa': 9, 'kumi': 10 };
   for (const [word, num] of Object.entries(SW_NUMBERS)) {
     if (text.includes(word)) return num;
   }
@@ -2220,11 +2212,9 @@ function ensureAudioContext() {
       const resume = () => { if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume(); };
       document.addEventListener('click', resume);
       document.addEventListener('touchstart', resume);
-    } catch (e) { console.warn('AudioContext not supported', e); }
+    } catch (e) {}
   }
-  if (audioCtx && audioCtx.state === 'suspended') {
-    audioCtx.resume().catch(() => {});
-  }
+  if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume().catch(() => {});
   return audioCtx;
 }
 
@@ -2253,15 +2243,8 @@ function populateVoiceSelect() {
   }
 }
 
-function onVoiceChange(uri) {
-  state.settings.voiceURI = uri;
-  saveState();
-}
-
-function onRateChange(val) {
-  state.settings.voiceRate = parseFloat(val);
-  saveState();
-}
+function onVoiceChange(uri) { state.settings.voiceURI = uri; saveState(); }
+function onRateChange(val) { state.settings.voiceRate = parseFloat(val); saveState(); }
 
 function toggleVoicePanel() {
   const panel = document.getElementById('voicePanel');
@@ -2327,10 +2310,6 @@ function initSpeechRecognition() {
     setOrbState('idle');
     if (event.error === 'not-allowed') {
       showToast(t('voice.micDenied'), 'warn');
-    } else if (event.error === 'no-speech') {
-      // silent
-    } else {
-      showToast(t('voice.recognitionError'), 'warn');
     }
   };
   rec.onend = () => {
@@ -2342,10 +2321,7 @@ function initSpeechRecognition() {
 
 function toggleListening() {
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SR) {
-    showToast(t('voice.notSupported'), 'warn');
-    return;
-  }
+  if (!SR) { showToast(t('voice.notSupported'), 'warn'); return; }
   if (isListening) {
     recognition && recognition.stop();
     isListening = false;
@@ -2353,10 +2329,7 @@ function toggleListening() {
     return;
   }
   recognition = initSpeechRecognition();
-  if (!recognition) {
-    showToast(t('voice.notSupported'), 'warn');
-    return;
-  }
+  if (!recognition) { showToast(t('voice.notSupported'), 'warn'); return; }
   recognition.lang = currentLang === 'sw' ? 'sw-TZ' : 'en-US';
   try {
     recognition.start();
@@ -2512,13 +2485,16 @@ function init() {
   loadVoices();
   ensureAudioContext();
 
-  setInterval(reminderEngine, REMINDER_INTERVAL);
+  // Alarm check every 10 seconds
+  setInterval(checkAlarms, 10000);
   setInterval(backupReminderTick, 30 * 60 * 1000);
   setInterval(sleepCheckTick, 30 * 60 * 1000);
-  reminderEngine();
+  checkAlarms();
 }
+
 document.addEventListener('DOMContentLoaded', init);
 if (document.readyState !== 'loading') init();
+
 </script>
 </body>
 </html>
