@@ -2117,6 +2117,29 @@ document.getElementById('commandInput').addEventListener('keypress', function(e)
   if(e.key==='Enter') { e.preventDefault(); submitTypedCommand(); }
 });
 
+
+// ====================================================================
+// QUICK STOCK (missing from original — added)
+// ====================================================================
+function confirmQuickStock() {
+  const name = document.getElementById('quickStockName').value.trim().toLowerCase();
+  const qty  = parseInt(document.getElementById('quickStockQty').value) || 0;
+  const price = parseInt(document.getElementById('quickStockPrice').value) || 0;
+  if (!name) { showToast('Andika jina la bidhaa', 'warn'); return; }
+  if (state.stocks[name]) {
+    state.stocks[name].idadi += qty;
+    if (price > 0) state.stocks[name].bei = price;
+  } else {
+    state.stocks[name] = { idadi: qty, bei: price, lastSold: null };
+  }
+  saveState();
+  renderStockTable();
+  renderStats();
+  closeModal('quickStockModal');
+  logActivity('ai', 'Stoki imeongezwa: ' + name + ' +' + qty);
+  showToast('Bidhaa imeongezwa: ' + name, 'ok');
+}
+
 // ====================================================================
 // BACKUP
 // ====================================================================
@@ -2293,18 +2316,7 @@ function downloadAppHTML() {
   showToast('App imepakuwa! Fungua faili hilo kwenye kivinjari.', 'ok');
 }
 
-// ====================================================================
-// MOBILE NAV SYNC
-// ====================================================================
-// Override showPage to also update mobile nav
-const _showPagePatched = function(name) {
-  _origShowPage(name);
-  document.querySelectorAll('.mnav-item').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.page === name);
-  });
-};
-// We'll call _showPagePatched from the nav buttons already (they call showPage),
-// but we need to also update when desktop nav is used
+// Mobile nav sync is handled inside showPage() above
 
 // ====================================================================
 // AI CHAT — FULL CLAUDE INTEGRATION (Kiswahili)
