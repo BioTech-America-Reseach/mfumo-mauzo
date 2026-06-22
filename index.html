@@ -462,14 +462,10 @@
     color: #1a1305; font-size: 10px; font-weight: 700; padding: 3px 8px;
     border-radius: 999px; letter-spacing: 0.5px;
   }
-  .ai-badge.online{
-    background: linear-gradient(135deg, var(--green), #1f6b42);
-    color: #fff;
-  }
   .ai-badge.offline{
-    background: var(--red-soft);
-    color: var(--red);
-    border: 1px solid rgba(226,87,76,0.3);
+    background: var(--panel-2);
+    color: var(--text-dim);
+    border: 1px solid var(--line);
   }
   .ai-messages{
     flex: 1; overflow-y: auto; padding: 14px; display: flex;
@@ -795,7 +791,7 @@
     </div>
   </div>
 
-  <!-- AI CHAT PAGE -->
+  <!-- AI CHAT PAGE - OFFLINE VERSION -->
   <div class="page" id="page-aichat">
     <div class="ai-chat-panel" style="height:calc(100vh - 200px);min-height:500px;">
       <div class="ai-chat-header">
@@ -803,10 +799,10 @@
           <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--gold),#8a6a2f);display:flex;align-items:center;justify-content:center;font-weight:700;font-family:'Space Grotesk';color:#1a1305;font-size:16px;">J</div>
           <div>
             <h3>Jawiza AI — Mshauri wa Biashara</h3>
-            <div style="font-size:11px;color:var(--text-faint);">Anaelewa Kiswahili · Imeunganishwa na Cloud AI</div>
+            <div style="font-size:11px;color:var(--text-faint);">Anaelewa Kiswahili · Inafanya kazi OFFLINE</div>
           </div>
         </div>
-        <span class="ai-badge online" id="aiStatusBadge">☁️ ONLINE</span>
+        <span class="ai-badge offline">📴 OFFLINE</span>
       </div>
       <div class="ai-quick-chips" id="aiQuickChips">
         <div class="ai-chip" onclick="sendAIMessage('Niambie hali ya biashara yangu leo')">📊 Hali ya Biashara</div>
@@ -1016,15 +1012,6 @@
 
 <script>
 // ====================================================================
-// API KEY - Imefichwa (Hidden)
-// ====================================================================
-// API Key imewekwa kwenye variable hii kwa usalama
-const API_KEY = (function(){
-  // Hii ni API Key yako iliyofichwa
-  return 'AQ.Ab8RN6KUSaKM2NGLjAFxHVBxF3Qje4U-xJro6l8RlJ98AHowNg';
-})();
-
-// ====================================================================
 // CONSTANTS & STATE
 // ====================================================================
 const STORAGE_KEY = 'jawiza_state_v3';
@@ -1059,7 +1046,6 @@ let isSpeaking = false;
 let availableVoices = [];
 let aiRecognition = null;
 let aiListening = false;
-let aiHistory = [];
 
 // ====================================================================
 // STORAGE HELPERS
@@ -1237,11 +1223,9 @@ function confirmSavings() {
   closeModal('savingsModal');
   logActivity('savings', 'Akiba: Tsh '+fmtMoney(amount));
   
-  // Celebrate!
   speak('Hongera sana! Umehifadhi akiba ya Tsh '+fmtMoney(amount)+'. Endelea hivyo! 🎉');
   showToast('🎉 Hongera! Akiba ya Tsh '+fmtMoney(amount)+' imehifadhiwa!', 'gold');
   
-  // Animation effect
   const el = document.getElementById('savingsDisplay');
   el.classList.remove('celebrate');
   setTimeout(() => el.classList.add('celebrate'), 50);
@@ -2133,7 +2117,7 @@ function submitTypedCommand() {
 }
 
 // ====================================================================
-// AI CHAT - CONNECTED TO CLOUD WITH API KEY (Hidden)
+// AI CHAT - OFFLINE VERSION (Inafanya kazi bila mtandao)
 // ====================================================================
 function toggleAIListening() {
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -2192,35 +2176,9 @@ function toggleAIListening() {
   }
 }
 
-function getBusinessContext() {
-  const sales = getTodaySalesTotal();
-  const exp = getTodayExpensesTotal();
-  const profit = getTodayProfit();
-  const count = getTodaySalesCount();
-  const savings = getTodaySavings();
-  const stockValue = Object.values(state.stocks).reduce((a,s)=>a+(s.idadi*s.bei),0);
-  const unpaid = state.sales.filter(s=>s.status==='unpaid'&&!isReceiptDeleted(s.id)).length;
-  const lowStock = Object.keys(state.stocks).filter(k=>state.stocks[k].idadi<=5);
-  const topItems = Object.entries(state.stocks)
-    .sort((a,b)=>(b[1].idadi*b[1].bei)-(a[1].idadi*a[1].bei))
-    .slice(0,5)
-    .map(([k,v])=>`${k}: idadi=${v.idadi}, bei=Tsh${v.bei}`)
-    .join('; ');
-  const recentSales = state.sales.slice(-5).map(s=>s.items.map(i=>`${i.name}x${i.qty}`).join(',')+' Tsh'+s.total).join(' | ');
-
-  return `HALI YA BIASHARA (leo ${new Date().toLocaleDateString('sw-TZ')}):
-- Mauzo leo: Tsh ${sales.toLocaleString()}
-- Matumizi leo: Tsh ${exp.toLocaleString()}
-- Faida leo: Tsh ${profit.toLocaleString()} (${profit>=0?'FAIDA':'HASARA'})
-- Idadi ya mauzo: ${count}
-- Akiba leo: Tsh ${savings.toLocaleString()}
-- Thamani ya stoki: Tsh ${stockValue.toLocaleString()}
-- Madeni ya wateja: ${unpaid}
-- Stoki ndogo: ${lowStock.join(', ')||'hakuna'}
-- Bidhaa kuu: ${topItems||'hakuna'}
-- Mauzo ya hivi karibuni: ${recentSales||'hakuna'}`;
-}
-
+// ====================================================================
+// AI CHAT - OFFLINE RESPONSES (Inajibu kwa kutumia data ya biashara)
+// ====================================================================
 function sendAIMessage(presetText) {
   const input = document.getElementById('aiInput');
   const text = (presetText || input.value).trim();
@@ -2228,80 +2186,123 @@ function sendAIMessage(presetText) {
   input.value = '';
 
   appendAIMessage('user', text);
-  aiHistory.push({role: 'user', content: text});
 
   const thinkId = 'think-' + Date.now();
   appendAIMessage('thinking', '🤔 Nafikiri...', thinkId);
 
-  try {
-    const systemPrompt = `Wewe ni Jawiza, msaidizi wa AI wa biashara ndogo Tanzania. Unazungumza Kiswahili fasaha. Unasaidia wafanyabiashara wadogo wa Tanzania kufuatilia mauzo, matumizi, stoki, na fedha zao.
-
-Tabia yako:
-- Jibu kwa Kiswahili
-- Kuwa rafiki, msikivu, na wa vitendo
-- Toa ushauri wa vitendo, wa kuelewa rahisi
-- Tumia nambari halisi kutoka kwa data ya biashara uliyopewa
-- Hakuna maneno ya ziada — jibu kwa ufupi na uwazi
-
-${getBusinessContext()}
-
-Miongozo ya ziada:
-- Kama unaulizwa kuhusu hesabu, tumia nambari halisi za biashara
-- Toa hatua 3-5 zinazofaa kwa biashara ndogo Tanzania
-- Eleza mambo kwa lugha rahisi
-- Ukishauri, fikiria hali halisi ya biashara ndogo Tanzania`;
-
-    fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': API_KEY,
-        'anthropic-version': '2023-06-01'
-      },
-      body: JSON.stringify({
-        model: 'claude-3-sonnet-20240229',
-        max_tokens: 1000,
-        system: systemPrompt,
-        messages: aiHistory.slice(-10)
-      })
-    })
-    .then(res => {
-      if (!res.ok) {
-        throw new Error('HTTP ' + res.status);
-      }
-      return res.json();
-    })
-    .then(data => {
-      const thinkEl = document.getElementById(thinkId);
-      if (thinkEl) thinkEl.remove();
-
-      if (data.content && data.content[0] && data.content[0].text) {
-        const reply = data.content[0].text;
-        appendAIMessage('assistant', reply);
-        aiHistory.push({role: 'assistant', content: reply});
-        logActivity('ai', 'AI: ' + reply.slice(0, 60) + (reply.length > 60 ? '...' : ''));
-        if (reply.length < 300) speak(reply);
-        document.getElementById('aiStatusBadge').textContent = '☁️ ONLINE';
-        document.getElementById('aiStatusBadge').className = 'ai-badge online';
-      } else {
-        appendAIMessage('error', '⚠️ Samahani, kuna tatizo. Jaribu tena.');
-        document.getElementById('aiStatusBadge').textContent = '⚠️ ERROR';
-        document.getElementById('aiStatusBadge').className = 'ai-badge offline';
-      }
-    })
-    .catch(err => {
-      const thinkEl = document.getElementById(thinkId);
-      if (thinkEl) thinkEl.remove();
-      appendAIMessage('error', '⚠️ Samahani — hakuna mtandao. Hakikisha una mtandao na jaribu tena.');
-      console.warn('AI error:', err);
-      document.getElementById('aiStatusBadge').textContent = '⚠️ OFFLINE';
-      document.getElementById('aiStatusBadge').className = 'ai-badge offline';
-    });
-  } catch(err) {
+  // Simulate AI thinking
+  setTimeout(() => {
     const thinkEl = document.getElementById(thinkId);
     if (thinkEl) thinkEl.remove();
-    appendAIMessage('error', '⚠️ Samahani — kuna hitilafu. Jaribu tena.');
+    
+    const reply = getAIResponse(text);
+    appendAIMessage('assistant', reply);
+    if (reply.length < 300) speak(reply);
+    logActivity('ai', 'AI: ' + reply.slice(0, 60) + (reply.length > 60 ? '...' : ''));
+  }, 500 + Math.random() * 800);
+}
+
+function getAIResponse(text) {
+  const lower = text.toLowerCase();
+  const sales = getTodaySalesTotal();
+  const exp = getTodayExpensesTotal();
+  const profit = getTodayProfit();
+  const count = getTodaySalesCount();
+  const savings = getTodaySavings();
+  const stockValue = Object.values(state.stocks).reduce((a,s)=>a+(s.idadi*s.bei),0);
+  const totalSales = state.sales.filter(s=>!isReceiptDeleted(s.id)).reduce((a,s)=>a+s.total,0);
+  const unpaid = state.sales.filter(s=>s.status==='unpaid'&&!isReceiptDeleted(s.id)).length;
+  const lowStock = Object.keys(state.stocks).filter(k=>state.stocks[k].idadi<=5);
+  const topItems = Object.entries(state.stocks)
+    .sort((a,b)=>(b[1].idadi*b[1].bei)-(a[1].idadi*a[1].bei))
+    .slice(0,5)
+    .map(([k,v])=>`${k} (${v.idadi} zilizobaki, Tsh${v.bei} kwa kipande)`);
+
+  // Check for specific questions
+  if (lower.includes('hali') || lower.includes('biashara') || lower.includes('leo')) {
+    return `📊 Hali ya biashara yako leo:\n\n` +
+      `💰 Mauzo: Tsh ${fmtMoney(sales)}\n` +
+      `💸 Matumizi: Tsh ${fmtMoney(exp)}\n` +
+      `📈 Faida: Tsh ${fmtMoney(profit)} ${profit>=0 ? '✅' : '⚠️'}\n` +
+      `📦 Mauzo yote: ${count}\n` +
+      `🏦 Akiba: Tsh ${fmtMoney(savings)}\n` +
+      `📦 Thamani ya stoki: Tsh ${fmtMoney(stockValue)}\n` +
+      `${unpaid>0 ? `💳 Madeni: ${unpaid} ya wateja\n` : ''}` +
+      `${lowStock.length>0 ? `⚠️ Stoki ndogo: ${lowStock.join(', ')}` : '✅ Stoki zote zipo vizuri'}`;
   }
+
+  if (lower.includes('mauzo') || lower.includes('ongeza mauzo') || lower.includes('kuongeza')) {
+    let advice = [];
+    if (count === 0) advice.push('📉 Leo hujauza chochote. Jaribu kuvutia wateja kwa ofa maalum.');
+    if (profit < 0) advice.push('⚠️ Matumizi yako yamezidi mauzo. Punguza gharama zisizo za lazima.');
+    if (sales > 0 && sales < 50000) advice.push('📈 Mauzo yako ni kidogo. Jaribu kuongeza bidhaa zinazohitajika sana.');
+    if (sales > 50000) advice.push('✅ Mauzo yako ni mazuri! Hakikisha unaweka akiba.');
+    if (lowStock.length > 0) advice.push(`📦 Jaza stoki za: ${lowStock.join(', ')}`);
+    
+    if (advice.length === 0) advice.push('👍 Mauzo yako yanaendelea vizuri! Endelea kujitahidi.');
+    return '💡 USHAURI WA MAUZO:\n\n' + advice.join('\n\n');
+  }
+
+  if (lower.includes('matumizi') || lower.includes('gharama') || lower.includes('dhibiti')) {
+    return `💰 MATUMIZI YAKO:\n\n` +
+      `Matumizi leo: Tsh ${fmtMoney(exp)}\n` +
+      `Mauzo leo: Tsh ${fmtMoney(sales)}\n` +
+      `Faida: Tsh ${fmtMoney(profit)}\n\n` +
+      `${exp > sales ? '⚠️ Matumizi yamezidi mauzo! Punguza gharama zisizo za lazima.' : '✅ Matumizi yako ni chini ya mauzo. Vizuri!'}\n` +
+      `💡 Hakikisha unatenga 10-20% ya mapato kwa akiba.`;
+  }
+
+  if (lower.includes('akiba') || lower.includes('wekezaji')) {
+    return `🏦 AKIBA NA UWEKEZAJI:\n\n` +
+      `Akiba leo: Tsh ${fmtMoney(savings)}\n` +
+      `${savings === 0 ? '⚠️ Bado hujaweka akiba leo. Weka angalau Tsh 5,000 - 10,000.' : `✅ Hongera! Umehifadhi Tsh ${fmtMoney(savings)} akiba leo.`}\n\n` +
+      `💡 Kidokezo: Weka angalau 10% ya mapato yako kwa akiba.\n` +
+      `🎯 Lengo: Jenga akiba ya dharura ya miezi 3-6.`;
+  }
+
+  if (lower.includes('bidhaa') || lower.includes('bora') || lower.includes('stoki')) {
+    if (topItems.length === 0) return '📦 Bado huna bidhaa kwenye stoki. Ongeza bidhaa kwanza.';
+    return `📦 BIDHAA BORA ZA STOKI:\n\n` +
+      topItems.map((item, i) => `${i+1}. ${item}`).join('\n') +
+      `\n\n💡 Hakikisha una stoki ya kutosha kwa bidhaa zinazouzwa sana.`;
+  }
+
+  if (lower.includes('risiti') || lower.includes('risiti nzuri')) {
+    return `🧾 JINSI YA KUANDIKA RISITI NZURI:\n\n` +
+      `1. Weka jina la duka lako\n` +
+      `2. Tarehe na muda wa mauzo\n` +
+      `3. Jina na namba ya mteja\n` +
+      `4. Orodha ya bidhaa zilizonunuliwa\n` +
+      `5. Jumla ya kiasi kilicholipwa\n` +
+      `6. Hali ya malipo (Imelipiwa/Haijalipiwa)\n` +
+      `7. Asante kwa kununua\n\n` +
+      `💡 Unaweza kutumia Jawiza kutengeneza risiti zako!`;
+  }
+
+  if (lower.includes('tathmini') || lower.includes('duka') || lower.includes('vizuri')) {
+    let score = '⭐';
+    let msg = '';
+    if (profit > 50000 && count > 2) { score = '⭐⭐⭐'; msg = 'Duka lako linafanya vizuri sana! Endelea hivyo!'; }
+    else if (profit > 10000 && count > 0) { score = '⭐⭐'; msg = 'Duka lako linaendelea vizuri. Pana nafasi ya kuboresha.'; }
+    else { score = '⭐'; msg = 'Duka lako linahitaji nguvu zaidi. Angalia ushauri wa kuongeza mauzo.'; }
+    return `🎯 TATHMINI YA DUKA LANGU:\n\n` +
+      `Hali: ${score}\n` +
+      `${msg}\n\n` +
+      `📊 Mauzo: Tsh ${fmtMoney(sales)}\n` +
+      `📈 Faida: Tsh ${fmtMoney(profit)}\n` +
+      `📦 Stoki: ${Object.keys(state.stocks).length} bidhaa\n` +
+      `${lowStock.length>0 ? `⚠️ Stoki ndogo: ${lowStock.join(', ')}` : '✅ Stoki zote zipo vizuri'}`;
+  }
+
+  // Default response
+  return `🤖 Samahani, sijaelewa swali lako vizuri. Jaribu kuuliza kuhusu:\n\n` +
+    `📊 Hali ya biashara leo\n` +
+    `💡 Ushauri wa kuongeza mauzo\n` +
+    `💰 Dhibiti matumizi yangu\n` +
+    `📦 Bidhaa gani zinafanya vizuri\n` +
+    `🏦 Akiba na uwekezaji\n` +
+    `🧾 Risiti nzuri\n` +
+    `🎯 Tathmini duka langu`;
 }
 
 function appendAIMessage(role, text, id) {
