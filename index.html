@@ -186,6 +186,7 @@
   .receipt-line.kind-warn .rl-top{ color:#f2c14e; }
   .receipt-line.kind-ai .rl-top{ color:#6fc8ff; }
   .receipt-line.kind-savings .rl-top{ color:var(--gold); }
+  .receipt-line.kind-reminder .rl-top{ color:#f2c14e; }
   .receipt-empty{ color:var(--text-faint); font-size:13px; padding:20px 0; text-align:center; }
 
   .panel{
@@ -296,6 +297,9 @@
   .sched-check.checked{ background:var(--green); border-color:var(--green); }
   .sched-task{ flex:1; font-size:13.5px; }
   .sched-time{ font-family:'JetBrains Mono'; font-size:11px; color:var(--text-faint); }
+  .sched-reminder-badge{
+    font-size:9px; background:var(--gold-soft); color:var(--gold); padding:2px 8px; border-radius:999px; margin-left:6px;
+  }
 
   .goal-card{ flex-direction:column; align-items:stretch; gap:8px; }
   .goal-top{ display:flex; justify-content:space-between; align-items:center; }
@@ -586,6 +590,10 @@
   }
   .savings-card .amount{ font-family:'Space Grotesk'; font-size:24px; font-weight:700; color:var(--gold); }
   .savings-card .label{ font-size:12px; color:var(--text-dim); }
+
+  .reminder-badge{
+    background:var(--red-soft); color:var(--red); font-size:10px; padding:2px 10px; border-radius:999px; margin-left:8px; animation:pulse-badge 1.5s infinite;
+  }
 </style>
 </head>
 <body>
@@ -751,24 +759,36 @@
     </div>
   </div>
 
-  <!-- MALENGO -->
+  <!-- MALENGO (Ratiba + Malengo) -->
   <div class="page" id="page-malengo">
     <div class="command-grid" style="grid-template-columns:1fr 1fr;">
       <div class="panel">
         <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
-          <div><div class="panel-title">Ratiba ya Leo</div><div class="panel-sub">Panga kazi zako — Jawiza atakukumbusha</div></div>
+          <div>
+            <div class="panel-title">📋 Ratiba ya Leo</div>
+            <div class="panel-sub">Panga kazi zako — Jawiza atakukumbusha kwa sauti</div>
+          </div>
           <button class="btn btn-gold btn-sm" onclick="openModal('newScheduleModal')"><i class="fa-solid fa-plus"></i> Ongeza Kazi</button>
         </div>
         <div id="scheduleList" style="display:flex;flex-direction:column;gap:10px;margin-top:16px;"></div>
         <div class="empty-state" id="scheduleEmpty" style="display:none;"><i class="fa-solid fa-list-check"></i><div>Hakuna kazi kwenye ratiba ya leo.</div></div>
+        <div style="margin-top:12px;font-size:11px;color:var(--text-faint);">
+          <i class="fa-solid fa-volume-high"></i> Jawiza itakukumbusha kwa sauti kila baada ya dakika 15 kama kazi haijakamilika
+        </div>
       </div>
       <div class="panel">
         <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
-          <div><div class="panel-title">Malengo Yangu</div><div class="panel-sub">Malengo binafsi — Jawiza atakukumbusha</div></div>
+          <div>
+            <div class="panel-title">🎯 Malengo Yangu</div>
+            <div class="panel-sub">Malengo binafsi — Jawiza atakukumbusha</div>
+          </div>
           <button class="btn btn-gold btn-sm" onclick="openModal('newGoalModal')"><i class="fa-solid fa-plus"></i> Ongeza Lengo</button>
         </div>
         <div id="goalsList" style="display:flex;flex-direction:column;gap:10px;margin-top:16px;"></div>
         <div class="empty-state" id="goalsEmpty" style="display:none;"><i class="fa-solid fa-bullseye"></i><div>Hakuna malengo bado.</div></div>
+        <div style="margin-top:12px;font-size:11px;color:var(--text-faint);">
+          <i class="fa-solid fa-volume-high"></i> Jawiza itakukumbusha kwa sauti kulingana na frequency uliyochagua
+        </div>
       </div>
     </div>
   </div>
@@ -791,7 +811,7 @@
     </div>
   </div>
 
-  <!-- AI CHAT PAGE - OFFLINE VERSION -->
+  <!-- AI CHAT PAGE -->
   <div class="page" id="page-aichat">
     <div class="ai-chat-panel" style="height:calc(100vh - 200px);min-height:500px;">
       <div class="ai-chat-header">
@@ -973,9 +993,9 @@
 <!-- NEW SCHEDULE MODAL -->
 <div class="modal-overlay" id="newScheduleModal">
   <div class="modal-box">
-    <div class="modal-head"><h3>Kazi Mpya ya Ratiba</h3><button class="modal-close" onclick="closeModal('newScheduleModal')"><i class="fa-solid fa-xmark"></i></button></div>
+    <div class="modal-head"><h3>📋 Kazi Mpya ya Ratiba</h3><button class="modal-close" onclick="closeModal('newScheduleModal')"><i class="fa-solid fa-xmark"></i></button></div>
     <div class="field"><label>Kazi</label><input type="text" id="schedTaskInput" placeholder="piga simu mzabuni"></div>
-    <div class="field"><label>Muda</label><input type="time" id="schedTimeInput"></div>
+    <div class="field"><label>Muda (hiari)</label><input type="time" id="schedTimeInput"></div>
     <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px;">
       <button class="btn btn-ghost" onclick="closeModal('newScheduleModal')">Ghairi</button>
       <button class="btn btn-gold" onclick="confirmNewSchedule()">Ongeza</button>
@@ -986,7 +1006,7 @@
 <!-- NEW GOAL MODAL -->
 <div class="modal-overlay" id="newGoalModal">
   <div class="modal-box">
-    <div class="modal-head"><h3>Lengo Jipya</h3><button class="modal-close" onclick="closeModal('newGoalModal')"><i class="fa-solid fa-xmark"></i></button></div>
+    <div class="modal-head"><h3>🎯 Lengo Jipya</h3><button class="modal-close" onclick="closeModal('newGoalModal')"><i class="fa-solid fa-xmark"></i></button></div>
     <div class="field"><label>Lengo</label><input type="text" id="goalNameInput" placeholder="kujenga nyumba"></div>
     <div class="field"><label>Tarehe ya Lengo (hiari)</label><input type="date" id="goalDeadlineInput"></div>
     <div class="field"><label>Ukumbusho</label><select id="goalReminderFreq"><option value="daily">Kila siku</option><option value="weekly">Kila wiki</option></select></div>
@@ -1018,6 +1038,7 @@ const STORAGE_KEY = 'jawiza_state_v3';
 const DELETED_KEY = 'jawiza_deleted_receipts';
 const LAST_BACKUP_KEY = 'jawiza_last_backup';
 const SLEEP_CHECK_KEY = 'jawiza_last_sleep_check';
+const REMINDER_LOG_KEY = 'jawiza_reminder_log';
 
 function defaultState() {
   return {
@@ -1086,6 +1107,17 @@ function addDeletedReceipt(saleId) {
 
 function isReceiptDeleted(saleId) {
   return getDeletedReceipts().includes(saleId);
+}
+
+function getReminderLog() {
+  try {
+    const raw = localStorage.getItem(REMINDER_LOG_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch(e) { return {}; }
+}
+
+function setReminderLog(log) {
+  localStorage.setItem(REMINDER_LOG_KEY, JSON.stringify(log));
 }
 
 // ====================================================================
@@ -1780,7 +1812,7 @@ function exportAllDataPNG() {
 }
 
 // ====================================================================
-// SCHEDULE & GOALS
+// SCHEDULE & GOALS - WITH VOICE REMINDERS
 // ====================================================================
 function renderSchedule() {
   const list = document.getElementById('scheduleList');
@@ -1794,6 +1826,7 @@ function renderSchedule() {
       <div class="sched-check ${item.done?'checked':''}" onclick="toggleScheduleDone('${item.id}')">${item.done?'✓':''}</div>
       <div class="sched-task">${escapeHtml(item.task)}</div>
       ${item.time ? `<div class="sched-time">${item.time}</div>` : ''}
+      ${!item.done ? `<span class="sched-reminder-badge"><i class="fa-solid fa-volume-high"></i> Inakumbusha</span>` : ''}
       <button class="btn btn-ghost btn-sm" onclick="deleteScheduleItem('${item.id}')"><i class="fa-solid fa-trash"></i></button>
     </div>
   `).join('');
@@ -1808,7 +1841,8 @@ function confirmNewSchedule() {
   renderSchedule();
   closeModal('newScheduleModal');
   logActivity('ai', 'Ratiba imeongezwa: '+task);
-  showToast('Kazi imeongezwa!', 'ok');
+  speak('Sawa, nimeongeza kazi: '+task+'. Nitakukumbusha isipokamilika.');
+  showToast('✅ Kazi imeongezwa! Nitakukumbusha.', 'ok');
 }
 
 function toggleScheduleDone(id) {
@@ -1841,6 +1875,7 @@ function renderGoals() {
         <button class="btn ${g.done?'btn-ghost':'btn-green'} btn-sm" onclick="toggleGoalDone('${g.id}')">${g.done?'Tengua':'Kamilisha'}</button>
       </div>
       <div class="goal-meta">Tarehe: ${g.deadline?new Date(g.deadline).toLocaleDateString('en-GB'):'Hakuna'} · Siku: ${Math.floor((Date.now()-new Date(g.createdISO).getTime())/86400000)}</div>
+      ${!g.done ? `<div style="font-size:10px;color:var(--text-faint);"><i class="fa-solid fa-volume-high"></i> Ukumbusho: ${g.reminderFreq==='daily'?'Kila siku':'Kila wiki'}</div>` : ''}
     </div>
   `).join('');
 }
@@ -1855,7 +1890,8 @@ function confirmNewGoal() {
   renderGoals();
   closeModal('newGoalModal');
   logActivity('ai', 'Lengo jipya: '+name);
-  showToast('Lengo limeongezwa!', 'ok');
+  speak('Nimehifadhi lengo lako: '+name+'. Nitakukumbusha '+ (freq==='daily'?'kila siku':'kila wiki') +'.');
+  showToast('🎯 Lengo limeongezwa!', 'ok');
 }
 
 function toggleGoalDone(id) {
@@ -1867,6 +1903,58 @@ function toggleGoalDone(id) {
   if(g.done) {
     speak('Hongera kwa kukamilisha lengo: '+g.name);
     showToast('🎯 Lengo limekamilika!', 'ok');
+  }
+}
+
+// ====================================================================
+// REMINDER ENGINE - Inakumbusha kwa sauti
+// ====================================================================
+function checkReminders() {
+  const now = new Date();
+  const today = todayKey();
+  const reminderLog = getReminderLog();
+
+  // 1. SCHEDULE REMINDERS - Kila dakika 15 kama kazi haijakamilika
+  const undoneTasks = state.schedule.filter(s=>s.dateKey===today && !s.done);
+  undoneTasks.forEach(item => {
+    const key = 'sched_' + item.id + '_' + today;
+    const lastRemind = reminderLog[key] ? new Date(reminderLog[key]) : null;
+    
+    // Remind every 15 minutes (900 seconds) if not done
+    if (!lastRemind || (now - lastRemind) > 15 * 60 * 1000) {
+      const timeMsg = item.time ? ` iliyopangwa saa ${item.time}` : '';
+      speak('Kumbuka: ' + item.task + timeMsg + '. Bado hujakamilisha.');
+      logActivity('reminder', 'Kukumbusha: ' + item.task);
+      reminderLog[key] = nowISO();
+      setReminderLog(reminderLog);
+    }
+  });
+
+  // 2. GOALS REMINDERS
+  state.goals.filter(g=>!g.done).forEach(g => {
+    const key = 'goal_' + g.id + '_' + today;
+    const lastRemind = reminderLog[key] ? new Date(reminderLog[key]) : null;
+    const freq = g.reminderFreq === 'weekly' ? 7 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000;
+    
+    if (!lastRemind || (now - lastRemind) >= freq) {
+      speak('Usisahau lengo lako: ' + g.name);
+      logActivity('reminder', 'Kukumbusha lengo: ' + g.name);
+      reminderLog[key] = nowISO();
+      setReminderLog(reminderLog);
+      g.lastNudgeISO = nowISO();
+      saveState();
+    }
+  });
+
+  // 3. SAVINGS REMINDER - Kila siku
+  if (getTodaySavings() === 0) {
+    const key = 'savings_' + today;
+    const lastRemind = reminderLog[key] ? new Date(reminderLog[key]) : null;
+    if (!lastRemind || (now - lastRemind) > 4 * 60 * 60 * 1000) { // Kila saa 4
+      speak('Bwana, leo hujatiki akiba. Tafadhali weka akiba.');
+      reminderLog[key] = nowISO();
+      setReminderLog(reminderLog);
+    }
   }
 }
 
@@ -2117,7 +2205,7 @@ function submitTypedCommand() {
 }
 
 // ====================================================================
-// AI CHAT - OFFLINE VERSION (Inafanya kazi bila mtandao)
+// AI CHAT - OFFLINE VERSION
 // ====================================================================
 function toggleAIListening() {
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -2176,9 +2264,6 @@ function toggleAIListening() {
   }
 }
 
-// ====================================================================
-// AI CHAT - OFFLINE RESPONSES (Inajibu kwa kutumia data ya biashara)
-// ====================================================================
 function sendAIMessage(presetText) {
   const input = document.getElementById('aiInput');
   const text = (presetText || input.value).trim();
@@ -2190,7 +2275,6 @@ function sendAIMessage(presetText) {
   const thinkId = 'think-' + Date.now();
   appendAIMessage('thinking', '🤔 Nafikiri...', thinkId);
 
-  // Simulate AI thinking
   setTimeout(() => {
     const thinkEl = document.getElementById(thinkId);
     if (thinkEl) thinkEl.remove();
@@ -2217,8 +2301,8 @@ function getAIResponse(text) {
     .sort((a,b)=>(b[1].idadi*b[1].bei)-(a[1].idadi*a[1].bei))
     .slice(0,5)
     .map(([k,v])=>`${k} (${v.idadi} zilizobaki, Tsh${v.bei} kwa kipande)`);
+  const undoneTasks = state.schedule.filter(s=>s.dateKey===todayKey()&&!s.done).length;
 
-  // Check for specific questions
   if (lower.includes('hali') || lower.includes('biashara') || lower.includes('leo')) {
     return `📊 Hali ya biashara yako leo:\n\n` +
       `💰 Mauzo: Tsh ${fmtMoney(sales)}\n` +
@@ -2228,7 +2312,8 @@ function getAIResponse(text) {
       `🏦 Akiba: Tsh ${fmtMoney(savings)}\n` +
       `📦 Thamani ya stoki: Tsh ${fmtMoney(stockValue)}\n` +
       `${unpaid>0 ? `💳 Madeni: ${unpaid} ya wateja\n` : ''}` +
-      `${lowStock.length>0 ? `⚠️ Stoki ndogo: ${lowStock.join(', ')}` : '✅ Stoki zote zipo vizuri'}`;
+      `${lowStock.length>0 ? `⚠️ Stoki ndogo: ${lowStock.join(', ')}` : '✅ Stoki zote zipo vizuri'}\n` +
+      `${undoneTasks>0 ? `📋 Una kazi ${undoneTasks} ambazo hujakamilisha leo.` : '✅ Kazi zako zote zimekamilika!'}`;
   }
 
   if (lower.includes('mauzo') || lower.includes('ongeza mauzo') || lower.includes('kuongeza')) {
@@ -2238,9 +2323,20 @@ function getAIResponse(text) {
     if (sales > 0 && sales < 50000) advice.push('📈 Mauzo yako ni kidogo. Jaribu kuongeza bidhaa zinazohitajika sana.');
     if (sales > 50000) advice.push('✅ Mauzo yako ni mazuri! Hakikisha unaweka akiba.');
     if (lowStock.length > 0) advice.push(`📦 Jaza stoki za: ${lowStock.join(', ')}`);
+    if (undoneTasks > 0) advice.push(`📋 Usisahau kukamilisha kazi zako ${undoneTasks} zilizobaki.`);
     
     if (advice.length === 0) advice.push('👍 Mauzo yako yanaendelea vizuri! Endelea kujitahidi.');
     return '💡 USHAURI WA MAUZO:\n\n' + advice.join('\n\n');
+  }
+
+  if (lower.includes('ratiba') || lower.includes('kazi') || lower.includes('to do') || lower.includes('majukumu')) {
+    const tasks = state.schedule.filter(s=>s.dateKey===todayKey());
+    if (tasks.length === 0) return '📋 Hakuna kazi kwenye ratiba yako leo. Ongeza kazi kupitia sehemu ya Ratiba.';
+    const done = tasks.filter(t=>t.done);
+    const undone = tasks.filter(t=>!t.done);
+    return `📋 RATIBA YAKO LEO:\n\n` +
+      `${done.length>0 ? `✅ Kazi zilizokamilika (${done.length}):\n${done.map(t=>`  • ${t.task} ${t.time?'('+t.time+')':''}`).join('\n')}\n\n` : ''}` +
+      `${undone.length>0 ? `⏳ Kazi zilizobaki (${undone.length}):\n${undone.map(t=>`  • ${t.task} ${t.time?'('+t.time+')':''} ${t.time && isTimePassed(t.time) ? '🔴 IMECHELEWA' : ''}`).join('\n')}` : '🎉 Kazi zote zimekamilika! Hongera!'}`;
   }
 
   if (lower.includes('matumizi') || lower.includes('gharama') || lower.includes('dhibiti')) {
@@ -2291,10 +2387,10 @@ function getAIResponse(text) {
       `📊 Mauzo: Tsh ${fmtMoney(sales)}\n` +
       `📈 Faida: Tsh ${fmtMoney(profit)}\n` +
       `📦 Stoki: ${Object.keys(state.stocks).length} bidhaa\n` +
-      `${lowStock.length>0 ? `⚠️ Stoki ndogo: ${lowStock.join(', ')}` : '✅ Stoki zote zipo vizuri'}`;
+      `${lowStock.length>0 ? `⚠️ Stoki ndogo: ${lowStock.join(', ')}` : '✅ Stoki zote zipo vizuri'}\n` +
+      `${undoneTasks>0 ? `📋 Una kazi ${undoneTasks} zilizobaki leo.` : '✅ Kazi zako zote zimekamilika!'}`;
   }
 
-  // Default response
   return `🤖 Samahani, sijaelewa swali lako vizuri. Jaribu kuuliza kuhusu:\n\n` +
     `📊 Hali ya biashara leo\n` +
     `💡 Ushauri wa kuongeza mauzo\n` +
@@ -2302,7 +2398,15 @@ function getAIResponse(text) {
     `📦 Bidhaa gani zinafanya vizuri\n` +
     `🏦 Akiba na uwekezaji\n` +
     `🧾 Risiti nzuri\n` +
-    `🎯 Tathmini duka langu`;
+    `🎯 Tathmini duka langu\n` +
+    `📋 Ratiba yangu leo`;
+}
+
+function isTimePassed(time) {
+  if (!time) return false;
+  const now = new Date();
+  const [h, m] = time.split(':').map(Number);
+  return now.getHours() > h || (now.getHours() === h && now.getMinutes() > m);
 }
 
 function appendAIMessage(role, text, id) {
@@ -2315,59 +2419,6 @@ function appendAIMessage(role, text, id) {
     .replace(/\n/g, '<br>');
   container.appendChild(div);
   container.scrollTop = container.scrollHeight;
-}
-
-// ====================================================================
-// ALARM / REMINDER ENGINE
-// ====================================================================
-function checkAlarms() {
-  const now = new Date();
-  const today = todayKey();
-
-  state.schedule.forEach(item=>{
-    if(item.dateKey===today && !item.done && item.time) {
-      const [h,m]=item.time.split(':').map(Number);
-      const taskMin = h*60+m;
-      const curMin = now.getHours()*60+now.getMinutes();
-      const diff = taskMin - curMin;
-
-      if(diff===5) {
-        const key='alarm_5_'+item.id;
-        if(localStorage.getItem(key)!==today) {
-          speak('Kumbuka: '+item.task+' baada ya dakika 5.');
-          localStorage.setItem(key,today);
-        }
-      }
-      if(diff<=0 && diff>-1) {
-        const key='alarm_now_'+item.id;
-        if(localStorage.getItem(key)!==today) {
-          speak('Tahadhari: Muda wa '+item.task+' umefika!');
-          localStorage.setItem(key,today);
-        }
-      }
-    }
-  });
-
-  // Savings reminder
-  if(getTodaySavings()===0) {
-    const key='remind_savings_'+today;
-    const last=localStorage.getItem(key);
-    if(!last || now-parseInt(last)>30*60*1000) {
-      speak('Bwana, leo hujatiki akiba. Tafadhali weka akiba.');
-      localStorage.setItem(key,String(now));
-    }
-  }
-
-  // Goals reminder
-  state.goals.filter(g=>!g.done).forEach(g=>{
-    const freq = g.reminderFreq==='weekly' ? 7*24*60*60*1000 : 24*60*60*1000;
-    const last = g.lastNudgeISO ? new Date(g.lastNudgeISO).getTime() : new Date(g.createdISO).getTime();
-    if(now-last >= freq) {
-      speak('Usisahau lengo lako: '+g.name);
-      g.lastNudgeISO=nowISO();
-      saveState();
-    }
-  });
 }
 
 // ====================================================================
@@ -2532,10 +2583,14 @@ function init() {
   setLang(localStorage.getItem('jawiza_lang') || 'sw');
   renderAll();
   if(!getLastBackupTime()) setLastBackupTime(Date.now());
-  setInterval(checkAlarms, 30000);
+  
+  // Check reminders every 30 seconds
+  setInterval(checkReminders, 30000);
   setInterval(backupReminderTick, 30*60*1000);
   setInterval(sleepCheckTick, 30*60*1000);
-  checkAlarms();
+  
+  // Initial check
+  setTimeout(checkReminders, 5000);
   
   document.querySelectorAll('.modal-overlay').forEach(m => {
     m.style.display = 'none';
