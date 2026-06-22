@@ -9,8 +9,6 @@
 <meta name="apple-mobile-web-app-title" content="Jawiza">
 <meta name="theme-color" content="#D4A24E">
 <meta name="description" content="Msaidizi wa AI wa biashara — Kiswahili">
-<!-- manifest injected by JS below -->
-<!-- apple-touch-icon injected by inline JS -->
 <title>Jawiza — Msaidizi wa Duka</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -337,9 +335,6 @@
   .receipt-paper .rp-total{ font-weight:700; font-size:15px; color:#D4A24E; }
   .receipt-paper .rp-footer{ text-align:center; font-size:9px; color:#777; margin-top:8px; }
 
-  /* =============================================
-     PWA / MOBILE OPTIMIZATIONS
-  ============================================= */
   :root{
     --safe-top: env(safe-area-inset-top, 0px);
     --safe-bottom: env(safe-area-inset-bottom, 0px);
@@ -352,7 +347,6 @@
     overscroll-behavior-y: contain;
     -webkit-overflow-scrolling: touch;
   }
-  /* Bottom navigation bar for mobile */
   .mobile-nav{
     display: none;
     position: fixed;
@@ -385,7 +379,6 @@
     opacity: 0; margin-top: 2px;
   }
   .mnav-item.active .mnav-dot{ opacity: 1; }
-  /* Hide desktop nav on mobile */
   @media (max-width: 640px) {
     .nav-tabs{ display: none !important; }
     .mobile-nav{ display: flex; }
@@ -407,22 +400,18 @@
     th, td{ padding: 8px 6px; }
     .btn{ padding: 10px 14px; font-size: 13px; }
     .topbar-right .clock{ display: none; }
-    .typebar input{ font-size: 16px; /* prevent iOS zoom */ padding: 14px 12px; }
+    .typebar input{ font-size: 16px; padding: 14px 12px; }
     .chips-wrap{ gap: 6px; }
     .help-chip{ padding: 8px 12px; font-size: 12px; }
-    /* AI Chat panel mobile */
     .ai-chat-panel{ border-radius: 14px; }
     .ai-messages{ height: 280px; }
-    /* Download button */
     .download-pwa-btn{ display: flex !important; }
-    /* Install banner */
     .install-banner{ display: flex !important; }
   }
   @media (min-width: 641px){
     .download-pwa-btn{ display: flex; }
   }
 
-  /* AI Chat Styles */
   .ai-chat-panel{
     background: var(--panel); border: 1px solid var(--line); border-radius: 18px;
     display: flex; flex-direction: column; overflow: hidden; margin-top: 18px;
@@ -495,7 +484,6 @@
   }
   .ai-chip:hover{ border-color: var(--gold); color: var(--text); }
 
-  /* PWA Install Banner */
   .install-banner{
     display: none;
     background: linear-gradient(135deg, rgba(212,162,78,0.15), rgba(212,162,78,0.05));
@@ -514,7 +502,6 @@
   }
   .ib-close{ background: transparent; border: none; color: var(--text-faint); cursor: pointer; font-size: 18px; padding: 4px; }
 
-  /* Download HTML button */
   .download-pwa-btn{
     display: flex; align-items: center; gap: 6px;
     background: var(--panel-2); border: 1px solid var(--line); color: var(--text-dim);
@@ -524,12 +511,14 @@
   }
   .download-pwa-btn:hover{ border-color: var(--gold); color: var(--text); }
 
-  /* Smooth touch targets */
   button, [onclick]{ -webkit-tap-highlight-color: transparent; }
-  input, select, textarea{ font-size: 16px !important; /* prevent iOS zoom */ }
+  input, select, textarea{ font-size: 16px !important; }
   @media (min-width: 641px){
     input, select, textarea{ font-size: 14px !important; }
   }
+  .empty-state{ display:none; flex-direction:column; align-items:center; padding:40px 20px; color:var(--text-faint); }
+  .empty-state i{ font-size:40px; margin-bottom:12px; opacity:0.4; }
+  .empty-state div{ font-size:14px; }
 
 </style>
 </head>
@@ -924,92 +913,13 @@
 </div>
 
 <script>
-
 // ====================================================================
-// INLINE PWA MANIFEST — No external file needed
-// ====================================================================
-(function injectManifest() {
-  const manifest = {
-    name: "Jawiza — Msaidizi wa Duka",
-    short_name: "Jawiza",
-    description: "Msaidizi wa AI wa biashara ndogo — Kiswahili",
-    start_url: "./",
-    display: "standalone",
-    background_color: "#0B0F14",
-    theme_color: "#D4A24E",
-    orientation: "portrait-primary",
-    icons: [
-      { src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='38' fill='%23D4A24E'/%3E%3Ctext x='96' y='135' font-family='Arial Black' font-weight='900' font-size='105' fill='%231a1305' text-anchor='middle'%3EJ%3C/text%3E%3C/svg%3E", sizes: "192x192", type: "image/svg+xml", purpose: "any maskable" },
-      { src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='100' fill='%23D4A24E'/%3E%3Ctext x='256' y='360' font-family='Arial Black' font-weight='900' font-size='280' fill='%231a1305' text-anchor='middle'%3EJ%3C/text%3E%3C/svg%3E", sizes: "512x512", type: "image/svg+xml", purpose: "any maskable" }
-    ],
-    categories: ["business", "finance", "productivity"],
-    lang: "sw"
-  };
-  const blob = new Blob([JSON.stringify(manifest)], {type: 'application/manifest+json'});
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('link');
-  link.rel = 'manifest';
-  link.href = url;
-  document.head.appendChild(link);
-
-  // Apple touch icon inline
-  const appleLink = document.createElement('link');
-  appleLink.rel = 'apple-touch-icon';
-  appleLink.href = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='38' fill='%23D4A24E'/%3E%3Ctext x='96' y='135' font-family='Arial Black' font-weight='900' font-size='105' fill='%231a1305' text-anchor='middle'%3EJ%3C/text%3E%3C/svg%3E";
-  document.head.appendChild(appleLink);
-})();
-
-// ====================================================================
-// INLINE SERVICE WORKER — No sw.js file needed
-// ====================================================================
-(function registerInlineSW() {
-  if (!('serviceWorker' in navigator)) return;
-  const swCode = `
-const CACHE = 'jawiza-v2';
-const SHELL = [location.href];
-self.addEventListener('install', e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL).catch(()=>{})));
-  self.skipWaiting();
-});
-self.addEventListener('activate', e => {
-  e.waitUntil(caches.keys().then(keys =>
-    Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))
-  ));
-  self.clients.claim();
-});
-self.addEventListener('fetch', e => {
-  if (e.request.url.includes('anthropic.com')) return;
-  if (e.request.url.includes('fonts.googleapis') || e.request.url.includes('cdnjs')) {
-    e.respondWith(
-      caches.match(e.request).then(r => r || fetch(e.request).then(res => {
-        const clone = res.clone();
-        caches.open(CACHE).then(c => c.put(e.request, clone));
-        return res;
-      }))
-    );
-    return;
-  }
-  e.respondWith(
-    caches.match(e.request).then(r => r || fetch(e.request).catch(() => r))
-  );
-});
-`;
-  const blob = new Blob([swCode], {type: 'application/javascript'});
-  const swUrl = URL.createObjectURL(blob);
-  navigator.serviceWorker.register(swUrl, {scope: '/'}).then(() => {
-    console.log('Jawiza SW ready (inline)');
-  }).catch(err => {
-    // Fallback: try path-based if blob doesn't work (some browsers restrict)
-    console.warn('Inline SW failed, skipping:', err.message);
-  });
-})();
-
-
-// ====================================================================
-// STATE MANAGEMENT
+// CONSTANTS & STATE
 // ====================================================================
 const STORAGE_KEY = 'jawiza_state_v3';
 const DELETED_KEY = 'jawiza_deleted_receipts';
+const LAST_BACKUP_KEY = 'jawiza_last_backup';
+const SLEEP_CHECK_KEY = 'jawiza_last_sleep_check';
 
 function defaultState() {
   return {
@@ -1031,7 +941,18 @@ let voiceFlowActive = false;
 let voiceFlowStep = null;
 let voiceFlowData = {};
 let currentReceiptId = null;
+let currentLang = 'sw';
+let recognition = null;
+let isListening = false;
+let isSpeaking = false;
+let availableVoices = [];
+let aiRecognition = null;
+let aiListening = false;
+let aiHistory = [];
 
+// ====================================================================
+// STORAGE HELPERS
+// ====================================================================
 function loadState() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -1071,35 +992,33 @@ function isReceiptDeleted(saleId) {
 }
 
 // ====================================================================
-// UTILITIES
+// UTILITY FUNCTIONS
 // ====================================================================
 function fmtMoney(n) { return (Math.round(n||0)).toLocaleString('en-US'); }
 function todayKey(d=new Date()) { return d.toISOString().slice(0,10); }
 function nowISO() { return new Date().toISOString(); }
 function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
 function isToday(iso) { return iso.slice(0,10) === todayKey(); }
+function escapeHtml(str) { const d = document.createElement('div'); d.textContent = str; return d.innerHTML; }
 
-function getTodaySalesTotal() { return state.sales.filter(s=>isToday(s.dateISO)&&!isReceiptDeleted(s.id)).reduce((a,s)=>a+s.total,0); }
-function getTodayExpensesTotal() { return state.expenses.filter(e=>isToday(e.dateISO)).reduce((a,e)=>a+e.amount,0); }
+function getTodaySalesTotal() { 
+  return state.sales.filter(s=>isToday(s.dateISO)&&!isReceiptDeleted(s.id)).reduce((a,s)=>a+s.total,0); 
+}
+function getTodayExpensesTotal() { 
+  return state.expenses.filter(e=>isToday(e.dateISO)).reduce((a,e)=>a+e.amount,0); 
+}
 function getTodayProfit() { return getTodaySalesTotal() - getTodayExpensesTotal(); }
-function getTodaySalesCount() { return state.sales.filter(s=>isToday(s.dateISO)&&!isReceiptDeleted(s.id)).length; }
+function getTodaySalesCount() { 
+  return state.sales.filter(s=>isToday(s.dateISO)&&!isReceiptDeleted(s.id)).length; 
+}
 function getTodaySavings() {
   const entry = state.savings.find(s=>s.date===todayKey());
   return entry ? entry.amount : 0;
 }
 
 // ====================================================================
-// I18N
+// LANGUAGE
 // ====================================================================
-let currentLang = 'sw';
-function t(key) {
-  const dict = {
-    sw: { "topbar.voice":"Sauti" },
-    en: { "topbar.voice":"Voice" }
-  };
-  return (dict[currentLang] && dict[currentLang][key]) || key;
-}
-
 function setLang(lang) {
   currentLang = lang;
   localStorage.setItem('jawiza_lang', lang);
@@ -1111,47 +1030,65 @@ function setLang(lang) {
 // NAVIGATION
 // ====================================================================
 function showPage(name) {
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
-  const page = document.getElementById('page-'+name);
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  
+  const page = document.getElementById('page-' + name);
   if (page) page.classList.add('active');
+  
   const tab = document.querySelector(`.nav-tab[data-page="${name}"]`);
   if (tab) tab.classList.add('active');
-  // Mobile nav sync
+  
   document.querySelectorAll('.mnav-item').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.page === name);
   });
-  if(name==='mauzo') renderSalesTable();
-  if(name==='stock') renderStockTable();
-  if(name==='matumizi') renderExpenseTable();
-  if(name==='fedha') renderFinanceAdvice();
-  if(name==='malengo') { renderSchedule(); renderGoals(); }
-  if(name==='alldata') renderAllData();
+  
+  // Render content based on page
+  switch(name) {
+    case 'home': renderStats(); renderFeed(); break;
+    case 'mauzo': renderSalesTable(); break;
+    case 'stock': renderStockTable(); break;
+    case 'matumizi': renderExpenseTable(); break;
+    case 'fedha': renderFinanceAdvice(); break;
+    case 'malengo': renderSchedule(); renderGoals(); break;
+    case 'alldata': renderAllData(); break;
+    case 'aichat': break;
+  }
 }
 
 // ====================================================================
 // MODALS
 // ====================================================================
 function openModal(id) {
-  document.getElementById(id).classList.add('open');
-  if(id==='newSaleModal') {
-    pendingSaleItems = [{name:'',qty:1}];
-    document.getElementById('saleCustomerName').value='';
-    document.getElementById('saleCustomerPhone').value='';
-    document.getElementById('salePaidStatus').value='paid';
+  const modal = document.getElementById(id);
+  if (!modal) return;
+  modal.classList.add('open');
+  modal.style.display = 'flex';
+  
+  if (id === 'newSaleModal') {
+    pendingSaleItems = [{name: '', qty: 1}];
+    document.getElementById('saleCustomerName').value = '';
+    document.getElementById('saleCustomerPhone').value = '';
+    document.getElementById('salePaidStatus').value = 'paid';
     renderSaleItemRows();
   }
-  if(id==='newScheduleModal') {
-    document.getElementById('schedTaskInput').value='';
-    document.getElementById('schedTimeInput').value='';
+  if (id === 'newScheduleModal') {
+    document.getElementById('schedTaskInput').value = '';
+    document.getElementById('schedTimeInput').value = '';
   }
-  if(id==='newGoalModal') {
-    document.getElementById('goalNameInput').value='';
-    document.getElementById('goalDeadlineInput').value='';
-    document.getElementById('goalReminderFreq').value='daily';
+  if (id === 'newGoalModal') {
+    document.getElementById('goalNameInput').value = '';
+    document.getElementById('goalDeadlineInput').value = '';
+    document.getElementById('goalReminderFreq').value = 'daily';
   }
 }
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+function closeModal(id) {
+  const modal = document.getElementById(id);
+  if (!modal) return;
+  modal.classList.remove('open');
+  modal.style.display = 'none';
+}
 
 // ====================================================================
 // TOASTS
@@ -1190,12 +1127,6 @@ function renderFeed() {
       ${item.meta.sub ? `<div class="rl-meta">${escapeHtml(item.meta.sub)}</div>` : ''}
     </div>`;
   }).join('');
-}
-
-function escapeHtml(str) {
-  const d = document.createElement('div');
-  d.textContent = str;
-  return d.innerHTML;
 }
 
 // ====================================================================
@@ -1258,6 +1189,22 @@ function confirmNewStock() {
   renderStats();
   closeModal('newStockModal');
   logActivity('ai', 'Bidhaa imeongezwa: '+name+' '+qty);
+  showToast('Bidhaa imeongezwa!', 'ok');
+}
+
+function confirmQuickStock() {
+  const name = document.getElementById('quickStockName').value.trim().toLowerCase();
+  const qty = parseInt(document.getElementById('quickStockQty').value)||0;
+  const price = parseInt(document.getElementById('quickStockPrice').value)||0;
+  if(!name) { showToast('Andika jina la bidhaa', 'warn'); return; }
+  if(state.stocks[name]) { state.stocks[name].idadi += qty; if(price>0) state.stocks[name].bei = price; }
+  else { state.stocks[name] = {idadi:qty, bei:price, lastSold:null}; }
+  saveState();
+  renderStockTable();
+  renderStats();
+  closeModal('quickStockModal');
+  logActivity('ai', 'Stoki imeongezwa: ' + name + ' +' + qty);
+  showToast('Bidhaa imeongezwa: ' + name, 'ok');
 }
 
 function renderSalesTable() {
@@ -1299,11 +1246,10 @@ function markSalePaid(id) {
 }
 
 function deleteReceiptPermanent(saleId) {
-  if(!confirm('Je, una uhakika unataka kufuta risiti hii? Hii itawekwa kwenye kumbukumbu ya kufutwa.')) return;
+  if(!confirm('Je, una uhakika unataka kufuta risiti hii?')) return;
   const sale = state.sales.find(s=>s.id===saleId);
   if(sale) {
     addDeletedReceipt(saleId);
-    // We restore stock
     if(sale.items) {
       sale.items.forEach(item=>{
         if(state.stocks[item.name]) {
@@ -1315,8 +1261,8 @@ function deleteReceiptPermanent(saleId) {
     renderSalesTable();
     renderStockTable();
     renderStats();
-    logActivity('warn', 'Risiti imefutwa: #'+sale.seriesNo+' - '+ (sale.customerName||'Bila jina'));
-    showToast('Risiti imefutwa na kumbukumbu imehifadhiwa', 'warn');
+    logActivity('warn', 'Risiti imefutwa: #'+sale.seriesNo);
+    showToast('Risiti imefutwa', 'warn');
     closeModal('receiptModal');
   }
 }
@@ -1351,15 +1297,18 @@ function addSaleItemRow() {
   pendingSaleItems.push({name:'', qty:1});
   renderSaleItemRows();
 }
+
 function removeSaleItemRow(idx) {
   pendingSaleItems.splice(idx,1);
   if(pendingSaleItems.length===0) pendingSaleItems.push({name:'', qty:1});
   renderSaleItemRows();
 }
+
 function updateSaleItem(idx, field, val) {
   pendingSaleItems[idx][field] = field==='qty' ? Math.max(1, parseInt(val)||1) : val;
   renderSaleItemRows();
 }
+
 function updateSaleTotal() {
   let total=0;
   pendingSaleItems.forEach(item=>{
@@ -1409,11 +1358,6 @@ function recordSale(items, customerName, customerPhone, status) {
   renderAll();
   const itemsLabel = items.map(i=>`${i.name} x${i.qty}`).join(', ');
   logActivity('sale', 'Mauzo: '+itemsLabel, {sub:'Tsh '+fmtMoney(total)});
-  items.forEach(i=>{
-    const rem = state.stocks[i.name] ? state.stocks[i.name].idadi : 0;
-    if(rem===0) { speak('Stoki ya '+i.name+' imeisha!'); logActivity('warn','Stoki ya '+i.name+' imeisha'); }
-    else if(rem<=5) { speak('Stoki ya '+i.name+' imebaki '+rem); logActivity('warn','Stoki ya '+i.name+' imebaki '+rem); }
-  });
   return sale;
 }
 
@@ -1448,6 +1392,7 @@ function confirmNewExpense() {
   document.getElementById('expenseDesc').value='';
   document.getElementById('expenseAmount').value='';
   logActivity('expense', 'Matumizi: '+desc, {sub:'Tsh '+fmtMoney(amount)});
+  showToast('Matumizi yamehifadhiwa', 'ok');
 }
 
 function deleteExpense(id) {
@@ -1602,9 +1547,6 @@ function renderAuditList() {
   `).join('');
 }
 
-// ====================================================================
-// BUSINESS ADVICE (AI Chat)
-// ====================================================================
 function askBusinessAdvice() {
   const sales = getTodaySalesTotal();
   const exp = getTodayExpensesTotal();
@@ -1618,9 +1560,9 @@ function askBusinessAdvice() {
 
   let advice = [];
   if(count===0) advice.push('📉 Mbona leo hujauza chochote? Jaribu kuvutia wateja kwa ofa maalum.');
-  if(profit<0) advice.push('⚠️ Matumizi yako yamezidi mauzo. Angalia gharama zisizo za lazima kama mafuta, vifaa vya ofisi.');
-  if(profit>0 && profit<50000) advice.push('📈 Faida yako ni ndogo. Ongeza mauzo au punguza gharama za uendeshaji.');
-  if(profit>50000) advice.push('✅ Biashara yako inaendelea vizuri! Hakikisha unaweka akiba kwa siku za mvua.');
+  if(profit<0) advice.push('⚠️ Matumizi yako yamezidi mauzo. Angalia gharama zisizo za lazima.');
+  if(profit>0 && profit<50000) advice.push('📈 Faida yako ni ndogo. Ongeza mauzo au punguza gharama.');
+  if(profit>50000) advice.push('✅ Biashara yako inaendelea vizuri! Hakikisha unaweka akiba.');
   if(savings===0) advice.push('💰 Bado hujaweka akiba leo. Weka angalau 10% ya mapato yako.');
   if(unpaid>0) advice.push('💳 Una madeni '+unpaid+' ya wateja jumla Tsh '+fmtMoney(unpaidTotal)+'. Wape mwisho wa malipo.');
   if(totalStock<10) advice.push('📦 Stoki yako ni ndogo sana. Jaza bidhaa muhimu.');
@@ -1647,7 +1589,7 @@ function getBusinessReport() {
 }
 
 // ====================================================================
-// ALL DATA DASHBOARD
+// ALL DATA
 // ====================================================================
 function renderAllData() {
   const grid = document.getElementById('allDataGrid');
@@ -1670,7 +1612,6 @@ function renderAllData() {
     <div class="data-item"><div class="label">Madeni</div><div class="value red">${state.sales.filter(s=>s.status==='unpaid'&&!isReceiptDeleted(s.id)).length}</div></div>
   `;
 
-  // Chart
   const chart = document.getElementById('chartContainer');
   const weeks = [];
   for(let i=3; i>=0; i--) {
@@ -1749,6 +1690,7 @@ function confirmNewSchedule() {
   renderSchedule();
   closeModal('newScheduleModal');
   logActivity('ai', 'Ratiba imeongezwa: '+task);
+  showToast('Kazi imeongezwa!', 'ok');
 }
 
 function toggleScheduleDone(id) {
@@ -1792,6 +1734,7 @@ function confirmNewGoal() {
   renderGoals();
   closeModal('newGoalModal');
   logActivity('ai', 'Lengo jipya: '+name);
+  showToast('Lengo limeongezwa!', 'ok');
 }
 
 function toggleGoalDone(id) {
@@ -1801,72 +1744,6 @@ function toggleGoalDone(id) {
   saveState();
   renderGoals();
   if(g.done) speak('Hongera kwa kukamilisha lengo: '+g.name);
-}
-
-function deleteGoal(id) {
-  state.goals = state.goals.filter(g=>g.id!==id);
-  saveState();
-  renderGoals();
-}
-
-// ====================================================================
-// ALARM / REMINDER ENGINE
-// ====================================================================
-function checkAlarms() {
-  const now = new Date();
-  const today = todayKey();
-  const currentTime = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-
-  state.schedule.forEach(item=>{
-    if(item.dateKey===today && !item.done && item.time) {
-      const [h,m]=item.time.split(':').map(Number);
-      const taskMin = h*60+m;
-      const curMin = now.getHours()*60+now.getMinutes();
-      const diff = taskMin - curMin;
-
-      if(diff===5) {
-        const key='alarm_5_'+item.id;
-        if(localStorage.getItem(key)!==today) {
-          speak('Kumbuka: '+item.task+' baada ya dakika 5.');
-          localStorage.setItem(key,today);
-        }
-      }
-      if(diff<=0 && diff>-1) {
-        const key='alarm_now_'+item.id;
-        if(localStorage.getItem(key)!==today) {
-          speak('Tahadhari: Muda wa '+item.task+' umefika!');
-          localStorage.setItem(key,today);
-        }
-      }
-      if(diff<-1 && diff%10===0) {
-        const key='alarm_overdue_'+item.id;
-        const last=localStorage.getItem(key);
-        if(!last || now-parseInt(last)>10*60*1000) {
-          speak('Tahadhari: '+item.task+' ilipaswa kukamilika saa '+item.time);
-          localStorage.setItem(key,String(now));
-        }
-      }
-    }
-  });
-
-  if(getTodaySavings()===0) {
-    const key='remind_savings_'+today;
-    const last=localStorage.getItem(key);
-    if(!last || now-parseInt(last)>10*60*1000) {
-      speak('Bwana, leo hujatiki akiba. Tafadhali weka akiba.');
-      localStorage.setItem(key,String(now));
-    }
-  }
-
-  state.goals.filter(g=>!g.done).forEach(g=>{
-    const freq = g.reminderFreq==='weekly' ? 7*24*60*60*1000 : 24*60*60*1000;
-    const last = g.lastNudgeISO ? new Date(g.lastNudgeISO).getTime() : new Date(g.createdISO).getTime();
-    if(now-last >= freq) {
-      speak('Usisahau lengo lako: '+g.name);
-      g.lastNudgeISO=nowISO();
-      saveState();
-    }
-  });
 }
 
 // ====================================================================
@@ -1998,19 +1875,6 @@ function extractNumber(text) {
 // ====================================================================
 // SPEECH SYNTHESIS
 // ====================================================================
-let recognition=null, isListening=false, isSpeaking=false, availableVoices=[], audioCtx=null;
-
-function ensureAudioContext() {
-  if(!audioCtx) {
-    try {
-      audioCtx = new (window.AudioContext||window.webkitAudioContext)();
-      document.addEventListener('click', ()=>{ if(audioCtx.state==='suspended') audioCtx.resume(); });
-    } catch(e) {}
-  }
-  if(audioCtx && audioCtx.state==='suspended') audioCtx.resume().catch(()=>{});
-  return audioCtx;
-}
-
 function loadVoices() {
   availableVoices = window.speechSynthesis ? window.speechSynthesis.getVoices() : [];
   populateVoiceSelect();
@@ -2038,7 +1902,6 @@ function speak(text) {
   if(!('speechSynthesis' in window)) return;
   try {
     window.speechSynthesis.cancel();
-    ensureAudioContext();
     const utter = new SpeechSynthesisUtterance(text);
     utter.lang = currentLang==='sw' ? 'sw-TZ' : 'en-US';
     const voice = pickVoiceFor(currentLang);
@@ -2060,52 +1923,61 @@ function toggleVoicePanel() {
   if(p.style.display==='block') populateVoiceSelect();
 }
 
-function initSpeechRecognition() {
-  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if(!SR) return null;
-  const rec = new SR();
-  rec.continuous=false;
-  rec.interimResults=false;
-  rec.maxAlternatives=1;
-  rec.lang = currentLang==='sw' ? 'sw-TZ' : 'en-US';
-  rec.onresult = (e)=>{
-    const transcript = e.results[0][0].transcript;
-    document.getElementById('commandInput').value = transcript;
-    processVoiceCommand(transcript);
-  };
-  rec.onerror = ()=>{
-    isListening=false;
-    document.getElementById('orbButton').classList.remove('listening');
-  };
-  rec.onend = ()=>{
-    isListening=false;
-    document.getElementById('orbButton').classList.remove('listening');
-  };
-  return rec;
-}
-
 function toggleListening() {
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if(!SR) { showToast('Sauti haitumiki', 'warn'); return; }
-  if(isListening) {
-    recognition && recognition.stop();
-    isListening=false;
-    document.getElementById('orbButton').classList.remove('listening');
+  if (!SR) {
+    showToast('Sauti haitumiki kwenye kivinjari hiki', 'warn');
     return;
   }
-  recognition = initSpeechRecognition();
-  if(!recognition) { showToast('Sauti haitumiki', 'warn'); return; }
-  recognition.lang = currentLang==='sw' ? 'sw-TZ' : 'en-US';
+  
+  if (isListening) {
+    if (recognition) {
+      try { recognition.stop(); } catch(e) {}
+    }
+    isListening = false;
+    document.getElementById('orbButton').classList.remove('listening');
+    document.getElementById('orbStatus').textContent = 'Bofya kuongea na Jawiza';
+    document.getElementById('orbStatus').className = 'orb-status';
+    return;
+  }
+  
   try {
+    recognition = new SR();
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.lang = currentLang === 'sw' ? 'sw-TZ' : 'en-US';
+    
+    recognition.onresult = function(e) {
+      const transcript = e.results[0][0].transcript;
+      document.getElementById('commandInput').value = transcript;
+      processVoiceCommand(transcript);
+    };
+    
+    recognition.onerror = function(e) {
+      console.warn('Speech error:', e.error);
+      isListening = false;
+      document.getElementById('orbButton').classList.remove('listening');
+      document.getElementById('orbStatus').textContent = 'Hitilafu ya sauti. Jaribu tena.';
+      document.getElementById('orbStatus').className = 'orb-status';
+    };
+    
+    recognition.onend = function() {
+      isListening = false;
+      document.getElementById('orbButton').classList.remove('listening');
+      document.getElementById('orbStatus').textContent = 'Bofya kuongea na Jawiza';
+      document.getElementById('orbStatus').className = 'orb-status';
+    };
+    
     recognition.start();
-    isListening=true;
+    isListening = true;
     document.getElementById('orbButton').classList.add('listening');
-  } catch(e) { showToast('Hitilafu ya sauti', 'warn'); }
+    document.getElementById('orbStatus').textContent = '🎤 Nasikiliza... Sema sasa!';
+    document.getElementById('orbStatus').className = 'orb-status live';
+  } catch(e) {
+    showToast('Hitilafu ya sauti: ' + e.message, 'warn');
+  }
 }
 
-// ====================================================================
-// TYPED COMMANDS
-// ====================================================================
 function submitTypedCommand() {
   const input = document.getElementById('commandInput');
   const text = input.value.trim();
@@ -2113,31 +1985,226 @@ function submitTypedCommand() {
   processVoiceCommand(text);
   input.value='';
 }
-document.getElementById('commandInput').addEventListener('keypress', function(e){
-  if(e.key==='Enter') { e.preventDefault(); submitTypedCommand(); }
-});
-
 
 // ====================================================================
-// QUICK STOCK (missing from original — added)
+// AI CHAT
 // ====================================================================
-function confirmQuickStock() {
-  const name = document.getElementById('quickStockName').value.trim().toLowerCase();
-  const qty  = parseInt(document.getElementById('quickStockQty').value) || 0;
-  const price = parseInt(document.getElementById('quickStockPrice').value) || 0;
-  if (!name) { showToast('Andika jina la bidhaa', 'warn'); return; }
-  if (state.stocks[name]) {
-    state.stocks[name].idadi += qty;
-    if (price > 0) state.stocks[name].bei = price;
-  } else {
-    state.stocks[name] = { idadi: qty, bei: price, lastSold: null };
+function toggleAIListening() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) {
+    showToast('Sauti haitumiki kwenye kivinjari hiki', 'warn');
+    return;
   }
-  saveState();
-  renderStockTable();
-  renderStats();
-  closeModal('quickStockModal');
-  logActivity('ai', 'Stoki imeongezwa: ' + name + ' +' + qty);
-  showToast('Bidhaa imeongezwa: ' + name, 'ok');
+  
+  const btn = document.getElementById('aiVoiceBtn');
+  
+  if (aiListening) {
+    if (aiRecognition) {
+      try { aiRecognition.stop(); } catch(e) {}
+    }
+    aiListening = false;
+    btn.classList.remove('listening');
+    btn.innerHTML = '🎤';
+    return;
+  }
+  
+  try {
+    aiRecognition = new SR();
+    aiRecognition.continuous = false;
+    aiRecognition.interimResults = false;
+    aiRecognition.lang = currentLang === 'sw' ? 'sw-TZ' : 'en-US';
+    
+    aiRecognition.onresult = function(e) {
+      const transcript = e.results[0][0].transcript;
+      document.getElementById('aiInput').value = transcript;
+      sendAIMessage(transcript);
+      aiListening = false;
+      btn.classList.remove('listening');
+      btn.innerHTML = '🎤';
+    };
+    
+    aiRecognition.onerror = function(e) {
+      console.warn('AI Speech error:', e.error);
+      aiListening = false;
+      btn.classList.remove('listening');
+      btn.innerHTML = '🎤';
+      showToast('Hitilafu ya sauti. Jaribu tena.', 'warn');
+    };
+    
+    aiRecognition.onend = function() {
+      aiListening = false;
+      btn.classList.remove('listening');
+      btn.innerHTML = '🎤';
+    };
+    
+    aiRecognition.start();
+    aiListening = true;
+    btn.classList.add('listening');
+    btn.innerHTML = '🔴';
+  } catch(e) {
+    showToast('Hitilafu ya sauti: ' + e.message, 'warn');
+  }
+}
+
+function getBusinessContext() {
+  const sales = getTodaySalesTotal();
+  const exp = getTodayExpensesTotal();
+  const profit = getTodayProfit();
+  const count = getTodaySalesCount();
+  const savings = getTodaySavings();
+  const stockValue = Object.values(state.stocks).reduce((a,s)=>a+(s.idadi*s.bei),0);
+  const unpaid = state.sales.filter(s=>s.status==='unpaid'&&!isReceiptDeleted(s.id)).length;
+  const lowStock = Object.keys(state.stocks).filter(k=>state.stocks[k].idadi<=5);
+  const topItems = Object.entries(state.stocks)
+    .sort((a,b)=>(b[1].idadi*b[1].bei)-(a[1].idadi*a[1].bei))
+    .slice(0,5)
+    .map(([k,v])=>`${k}: idadi=${v.idadi}, bei=Tsh${v.bei}`)
+    .join('; ');
+  const recentSales = state.sales.slice(-5).map(s=>s.items.map(i=>`${i.name}x${i.qty}`).join(',')+' Tsh'+s.total).join(' | ');
+
+  return `HALI YA BIASHARA (leo ${new Date().toLocaleDateString('sw-TZ')}):
+- Mauzo leo: Tsh ${sales.toLocaleString()}
+- Matumizi leo: Tsh ${exp.toLocaleString()}
+- Faida leo: Tsh ${profit.toLocaleString()} (${profit>=0?'FAIDA':'HASARA'})
+- Idadi ya mauzo: ${count}
+- Akiba leo: Tsh ${savings.toLocaleString()}
+- Thamani ya stoki: Tsh ${stockValue.toLocaleString()}
+- Madeni ya wateja: ${unpaid}
+- Stoki ndogo: ${lowStock.join(', ')||'hakuna'}
+- Bidhaa kuu: ${topItems||'hakuna'}
+- Mauzo ya hivi karibuni: ${recentSales||'hakuna'}`;
+}
+
+function sendAIMessage(presetText) {
+  const input = document.getElementById('aiInput');
+  const text = (presetText || input.value).trim();
+  if (!text) return;
+  input.value = '';
+
+  appendAIMessage('user', text);
+  aiHistory.push({role: 'user', content: text});
+
+  const thinkId = 'think-' + Date.now();
+  appendAIMessage('thinking', '🤔 Nafikiri...', thinkId);
+
+  try {
+    const systemPrompt = `Wewe ni Jawiza, msaidizi wa AI wa biashara ndogo Tanzania. Unazungumza Kiswahili fasaha na pia Kiingereza ukihitajika. Unasaidia wafanyabiashara wadogo wa Tanzania kufuatilia mauzo, matumizi, stoki, na fedha zao.
+
+Tabia yako:
+- Jibu kwa Kiswahili (au Kiingereza kama mtumiaji anaandika Kiingereza)
+- Kuwa rafiki, msikivu, na wa vitendo
+- Toa ushauri wa vitendo, wa kuelewa rahisi
+- Tumia nambari halisi kutoka kwa data ya biashara uliyopewa
+- Hakuna maneno ya ziada — jibu kwa ufupi na uwazi
+
+${getBusinessContext()}
+
+Miongozo ya ziada:
+- Kama unaulizwa kuhusu hesabu, tumia nambari halisi za biashara
+- Toa hatua 3-5 zinazofaa kwa biashara ndogo Tanzania
+- Eleza mambo kwa lugha rahisi, si lugha ya akili ya bandia
+- Ukishauri, fikiria hali halisi ya biashara ndogo Tanzania`;
+
+    fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 1000,
+        system: systemPrompt,
+        messages: aiHistory.slice(-10)
+      })
+    })
+    .then(res => res.json())
+    .then(data => {
+      const thinkEl = document.getElementById(thinkId);
+      if (thinkEl) thinkEl.remove();
+
+      if (data.content && data.content[0] && data.content[0].text) {
+        const reply = data.content[0].text;
+        appendAIMessage('assistant', reply);
+        aiHistory.push({role: 'assistant', content: reply});
+        logActivity('ai', 'AI: ' + reply.slice(0, 60) + (reply.length > 60 ? '...' : ''));
+        if (reply.length < 300) speak(reply);
+      } else {
+        appendAIMessage('assistant', 'Samahani, kuna tatizo la mtandao. Jaribu tena.');
+      }
+    })
+    .catch(err => {
+      const thinkEl = document.getElementById(thinkId);
+      if (thinkEl) thinkEl.remove();
+      appendAIMessage('assistant', '⚠️ Samahani — hakuna mtandao au kuna hitilafu. Hakikisha una mtandao na jaribu tena.');
+      console.warn('AI error:', err);
+    });
+  } catch(err) {
+    const thinkEl = document.getElementById(thinkId);
+    if (thinkEl) thinkEl.remove();
+    appendAIMessage('assistant', '⚠️ Samahani — kuna hitilafu. Jaribu tena.');
+  }
+}
+
+function appendAIMessage(role, text, id) {
+  const container = document.getElementById('aiMessages');
+  const div = document.createElement('div');
+  div.className = 'ai-msg ' + role;
+  if (id) div.id = id;
+  div.innerHTML = text
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\n/g, '<br>');
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
+
+// ====================================================================
+// ALARM / REMINDER ENGINE
+// ====================================================================
+function checkAlarms() {
+  const now = new Date();
+  const today = todayKey();
+  const currentTime = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+
+  state.schedule.forEach(item=>{
+    if(item.dateKey===today && !item.done && item.time) {
+      const [h,m]=item.time.split(':').map(Number);
+      const taskMin = h*60+m;
+      const curMin = now.getHours()*60+now.getMinutes();
+      const diff = taskMin - curMin;
+
+      if(diff===5) {
+        const key='alarm_5_'+item.id;
+        if(localStorage.getItem(key)!==today) {
+          speak('Kumbuka: '+item.task+' baada ya dakika 5.');
+          localStorage.setItem(key,today);
+        }
+      }
+      if(diff<=0 && diff>-1) {
+        const key='alarm_now_'+item.id;
+        if(localStorage.getItem(key)!==today) {
+          speak('Tahadhari: Muda wa '+item.task+' umefika!');
+          localStorage.setItem(key,today);
+        }
+      }
+    }
+  });
+
+  if(getTodaySavings()===0) {
+    const key='remind_savings_'+today;
+    const last=localStorage.getItem(key);
+    if(!last || now-parseInt(last)>10*60*1000) {
+      speak('Bwana, leo hujatiki akiba. Tafadhali weka akiba.');
+      localStorage.setItem(key,String(now));
+    }
+  }
+
+  state.goals.filter(g=>!g.done).forEach(g=>{
+    const freq = g.reminderFreq==='weekly' ? 7*24*60*60*1000 : 24*60*60*1000;
+    const last = g.lastNudgeISO ? new Date(g.lastNudgeISO).getTime() : new Date(g.createdISO).getTime();
+    if(now-last >= freq) {
+      speak('Usisahau lengo lako: '+g.name);
+      g.lastNudgeISO=nowISO();
+      saveState();
+    }
+  });
 }
 
 // ====================================================================
@@ -2175,7 +2242,6 @@ function backupReminderTick() {
 // ====================================================================
 // SLEEP CHECK
 // ====================================================================
-const SLEEP_CHECK_KEY = 'jawiza_last_sleep_check';
 function getLastSleepCheckDate() { return localStorage.getItem(SLEEP_CHECK_KEY); }
 function setLastSleepCheckDate(d) { localStorage.setItem(SLEEP_CHECK_KEY, d); }
 
@@ -2231,20 +2297,27 @@ setInterval(tickClock, 1000);
 tickClock();
 
 // ====================================================================
-// INIT
+// DOWNLOAD APP
 // ====================================================================
-function init() {
-  setLang(localStorage.getItem('jawiza_lang') || 'sw');
-  renderAll();
-  if(!getLastBackupTime()) setLastBackupTime(Date.now());
-  ensureAudioContext();
-  setInterval(checkAlarms, 10000);
-  setInterval(backupReminderTick, 30*60*1000);
-  setInterval(sleepCheckTick, 30*60*1000);
-  checkAlarms();
+function downloadAppHTML() {
+  try {
+    const html = document.documentElement.outerHTML;
+    const blob = new Blob(['<!DOCTYPE html>\n' + html], {
+      type: 'text/html;charset=utf-8'
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'jawiza-app-' + todayKey() + '.html';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('✅ App imepakuwa! Fungua faili hilo kwenye kivinjari.', 'ok');
+  } catch(e) {
+    showToast('❌ Hitilafu: ' + e.message, 'warn');
+  }
 }
-document.addEventListener('DOMContentLoaded', init);
-if(document.readyState !== 'loading') init();
 
 // ====================================================================
 // PWA INSTALL
@@ -2275,7 +2348,6 @@ function triggerInstall() {
       deferredInstallPrompt = null;
     });
   } else {
-    // iOS instructions
     if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
       showToast('iOS: Bonyeza Share → Add to Home Screen', 'ok');
     } else {
@@ -2290,206 +2362,25 @@ function dismissInstallBanner() {
 }
 
 // ====================================================================
-// SERVICE WORKER REGISTRATION
+// INIT
 // ====================================================================
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    // SW registered inline above
+function init() {
+  setLang(localStorage.getItem('jawiza_lang') || 'sw');
+  renderAll();
+  if(!getLastBackupTime()) setLastBackupTime(Date.now());
+  setInterval(checkAlarms, 10000);
+  setInterval(backupReminderTick, 30*60*1000);
+  setInterval(sleepCheckTick, 30*60*1000);
+  checkAlarms();
+  
+  // Ensure modals are hidden by default
+  document.querySelectorAll('.modal-overlay').forEach(m => {
+    m.style.display = 'none';
   });
 }
 
-// ====================================================================
-// DOWNLOAD APP HTML (full self-contained)
-// ====================================================================
-function downloadAppHTML() {
-  const html = document.documentElement.outerHTML;
-  const blob = new Blob(['<!DOCTYPE html>
-' + html], {type: 'text/html;charset=utf-8'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'jawiza-app-' + todayKey() + '.html';
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
-  showToast('App imepakuwa! Fungua faili hilo kwenye kivinjari.', 'ok');
-}
-
-// Mobile nav sync is handled inside showPage() above
-
-// ====================================================================
-// AI CHAT — FULL CLAUDE INTEGRATION (Kiswahili)
-// ====================================================================
-let aiHistory = [];
-let aiListening = false;
-let aiRecognition = null;
-
-function getBusinessContext() {
-  const sales = getTodaySalesTotal();
-  const exp = getTodayExpensesTotal();
-  const profit = getTodayProfit();
-  const count = getTodaySalesCount();
-  const savings = getTodaySavings();
-  const stockValue = Object.values(state.stocks).reduce((a,s)=>a+(s.idadi*s.bei),0);
-  const unpaid = state.sales.filter(s=>s.status==='unpaid'&&!isReceiptDeleted(s.id)).length;
-  const lowStock = Object.keys(state.stocks).filter(k=>state.stocks[k].idadi<=5);
-  const topItems = Object.entries(state.stocks)
-    .sort((a,b)=>(b[1].idadi*b[1].bei)-(a[1].idadi*a[1].bei))
-    .slice(0,5)
-    .map(([k,v])=>`${k}: idadi=${v.idadi}, bei=Tsh${v.bei}`)
-    .join('; ');
-  const recentSales = state.sales.slice(-5).map(s=>s.items.map(i=>`${i.name}x${i.qty}`).join(',')+' Tsh'+s.total).join(' | ');
-
-  return `HALI YA BIASHARA (leo ${new Date().toLocaleDateString('sw-TZ')}):
-- Mauzo leo: Tsh ${sales.toLocaleString()}
-- Matumizi leo: Tsh ${exp.toLocaleString()}
-- Faida leo: Tsh ${profit.toLocaleString()} (${profit>=0?'FAIDA':'HASARA'})
-- Idadi ya mauzo: ${count}
-- Akiba leo: Tsh ${savings.toLocaleString()}
-- Thamani ya stoki: Tsh ${stockValue.toLocaleString()}
-- Madeni ya wateja: ${unpaid}
-- Stoki ndogo: ${lowStock.join(', ')||'hakuna'}
-- Bidhaa kuu: ${topItems||'hakuna'}
-- Mauzo ya hivi karibuni: ${recentSales||'hakuna'}`;
-}
-
-async function sendAIMessage(presetText) {
-  const input = document.getElementById('aiInput');
-  const text = (presetText || input.value).trim();
-  if (!text) return;
-  input.value = '';
-
-  // Add user message
-  appendAIMessage('user', text);
-  aiHistory.push({role: 'user', content: text});
-
-  // Show thinking
-  const thinkId = 'think-' + Date.now();
-  appendAIMessage('thinking', '🤔 Nafikiri...', thinkId);
-
-  try {
-    const systemPrompt = `Wewe ni Jawiza, msaidizi wa AI wa biashara ndogo Tanzania. Unazungumza Kiswahili fasaha na pia Kiingereza ukihitajika. Unasaidia wafanyabiashara wadogo wa Tanzania kufuatilia mauzo, matumizi, stoki, na fedha zao.
-
-Tabia yako:
-- Jibu kwa Kiswahili (au Kiingereza kama mtumiaji anaandika Kiingereza)
-- Kuwa rafiki, msikivu, na wa vitendo
-- Toa ushauri wa vitendo, wa kuelewa rahisi
-- Tumia nambari halisi kutoka kwa data ya biashara uliyopewa
-- Hakuna maneno ya ziada — jibu kwa ufupi na uwazi
-
-${getBusinessContext()}
-
-Miongozo ya ziada:
-- Kama unaulizwa kuhusu hesabu, tumia nambari halisi za biashara
-- Toa hatua 3-5 zinazofaa kwa biashara ndogo Tanzania
-- Eleza mambo kwa lugha rahisi, si lugha ya akili ya bandia
-- Ukishauri, fikiria hali halisi ya biashara ndogo Tanzania`;
-
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 1000,
-        system: systemPrompt,
-        messages: aiHistory.slice(-10) // keep last 10 for context
-      })
-    });
-
-    const data = await response.json();
-    
-    // Remove thinking bubble
-    const thinkEl = document.getElementById(thinkId);
-    if (thinkEl) thinkEl.remove();
-
-    if (data.content && data.content[0] && data.content[0].text) {
-      const reply = data.content[0].text;
-      appendAIMessage('assistant', reply);
-      aiHistory.push({role: 'assistant', content: reply});
-      logActivity('ai', 'AI: ' + reply.slice(0, 60) + (reply.length > 60 ? '...' : ''));
-      // Speak the response if short enough
-      if (reply.length < 300) speak(reply);
-    } else {
-      appendAIMessage('assistant', 'Samahani, kuna tatizo la mtandao. Jaribu tena.');
-      const thinkEl2 = document.getElementById(thinkId);
-      if (thinkEl2) thinkEl2.remove();
-    }
-  } catch(err) {
-    const thinkEl = document.getElementById(thinkId);
-    if (thinkEl) thinkEl.remove();
-    appendAIMessage('assistant', '⚠️ Samahani — hakuna mtandao au kuna hitilafu. Hakikisha una mtandao na jaribu tena.');
-    console.warn('AI error:', err);
-  }
-}
-
-function appendAIMessage(role, text, id) {
-  const container = document.getElementById('aiMessages');
-  const div = document.createElement('div');
-  div.className = 'ai-msg ' + role;
-  if (id) div.id = id;
-  // Simple markdown: **bold**, newlines
-  div.innerHTML = text
-    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-    .replace(/
-/g, '<br>');
-  container.appendChild(div);
-  container.scrollTop = container.scrollHeight;
-}
-
-function toggleAIListening() {
-  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SR) { showToast('Sauti haitumiki kwenye kivinjari hiki', 'warn'); return; }
-
-  const btn = document.getElementById('aiVoiceBtn');
-
-  if (aiListening) {
-    aiRecognition && aiRecognition.stop();
-    aiListening = false;
-    btn.classList.remove('listening');
-    btn.textContent = '🎤';
-    return;
-  }
-
-  aiRecognition = new SR();
-  aiRecognition.continuous = false;
-  aiRecognition.interimResults = false;
-  aiRecognition.lang = currentLang === 'sw' ? 'sw-TZ' : 'en-US';
-
-  aiRecognition.onresult = (e) => {
-    const transcript = e.results[0][0].transcript;
-    document.getElementById('aiInput').value = transcript;
-    sendAIMessage(transcript);
-    aiListening = false;
-    btn.classList.remove('listening');
-    btn.textContent = '🎤';
-  };
-
-  aiRecognition.onerror = () => {
-    aiListening = false;
-    btn.classList.remove('listening');
-    btn.textContent = '🎤';
-    showToast('Hitilafu ya sauti. Jaribu tena.', 'warn');
-  };
-
-  aiRecognition.onend = () => {
-    aiListening = false;
-    btn.classList.remove('listening');
-    btn.textContent = '🎤';
-  };
-
-  try {
-    aiRecognition.start();
-    aiListening = true;
-    btn.classList.add('listening');
-    btn.textContent = '🔴';
-  } catch(e) {
-    showToast('Hitilafu ya sauti', 'warn');
-  }
-}
-
-// aichat handled in core showPage
-
+document.addEventListener('DOMContentLoaded', init);
+if(document.readyState !== 'loading') init();
 </script>
 </body>
 </html>
